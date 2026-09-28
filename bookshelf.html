@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bookshelf</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Warm paper and ink; a reading-lamp dark mode. */
+  :root {
+    --paper: #f5f0e6;
+    --surface: #fbf8f1;
+    --ink: #211c16;
+    --ink-2: #5c5347;
+    --ink-3: #8a8073;
+    --line: #e2d9c8;
+    --accent: #a8432a;
+    --green: #3f7355;
+    --shadow: 40, 25, 10;
+    --serif: Fraunces, Georgia, "Times New Roman", serif;
+    --sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #17140f;
+      --surface: #1f1b15;
+      --ink: #ede5d6;
+      --ink-2: #b9ad99;
+      --ink-3: #857a69;
+      --line: #332c23;
+      --accent: #e07a52;
+      --green: #7fb894;
+      --shadow: 0, 0, 0;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 1080px; margin: 0 auto; padding: 56px 24px 72px; }
+
+  /* Masthead: title on the left, the three counts on the right. */
+  .masthead { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 24px 40px; }
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+  h1 {
+    font: 600 clamp(48px, 9vw, 80px)/.95 var(--serif); letter-spacing: -.025em; margin: 0;
+    font-variation-settings: "opsz" 144;
+  }
+  h1 em { font-weight: 400; color: var(--accent); }
+  .sub { font: italic 18px/1.4 var(--serif); color: var(--ink-2); margin: 12px 0 0; }
+  .stats { display: flex; gap: 36px; margin: 0; }
+  .stat { display: flex; flex-direction: column-reverse; }
+  .stat dd { margin: 0; font: 500 44px/1 var(--serif); font-variant-numeric: lining-nums; }
+  .stat dt { font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-top: 6px; }
+  .stat.read dd { color: var(--green); }
+  .stat.reading dd { color: var(--accent); }
+  .stat.want dd { color: var(--ink-3); }
+
+  /* Progress: a hairline with the read share drawn thick over it. */
+  .progress { margin: 32px 0 0; }
+  .track { height: 1px; background: var(--line); position: relative; }
+  .track i { position: absolute; left: 0; top: -2px; height: 5px; border-radius: 3px; background: var(--green); transition: width .5s; }
+  .progress p { margin: 10px 0 0; font-size: 13px; color: var(--ink-3); }
+
+  /* Tabs sit on a rule, the selected one underlined. */
+  .tabs { display: flex; flex-wrap: wrap; gap: 4px 28px; margin: 36px 0 0; border-bottom: 1px solid var(--line); }
+  .tabs button {
+    font: 500 15px var(--sans); color: var(--ink-2); background: none; border: 0; cursor: pointer;
+    padding: 10px 0 12px; margin-bottom: -1px; border-bottom: 2px solid transparent;
+  }
+  .tabs button:hover { color: var(--ink); }
+  .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+  .tabs button sup { font-size: 11px; font-weight: 600; color: var(--ink-3); margin-left: 3px; }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; margin: 18px 0 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px; font: 500 13px var(--sans); color: var(--ink-2);
+    background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer;
+  }
+  .chip:hover { border-color: var(--ink-3); color: var(--ink); }
+  .chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--g); flex: none; }
+  input[type="search"] {
+    font: 14px var(--sans); color: var(--ink); background: var(--surface);
+    border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px 7px 34px; width: 260px; max-width: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%238a8073' stroke-width='1.6' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='m11 11 3.5 3.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: 12px center;
+  }
+  input[type="search"]::placeholder { color: var(--ink-3); }
+
+  section { margin-top: 44px; }
+  h2 { font: 500 28px/1.1 var(--serif); letter-spacing: -.01em; margin: 0; display: flex; align-items: baseline; gap: 10px; }
+  h2 span { font: 500 13px var(--sans); color: var(--ink-3); }
+  .note { font: italic 15px var(--serif); color: var(--ink-3); margin: 6px 0 18px; }
+  .empty { font: italic 16px var(--serif); color: var(--ink-3); margin: 0; padding: 22px 0; border-top: 1px dashed var(--line); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(440px, 100%), 1fr)); gap: 18px; }
+  .grid.feature { grid-template-columns: repeat(auto-fill, minmax(min(560px, 100%), 1fr)); }
+
+  .card {
+    display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 20px; align-items: start;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px;
+  }
+  .feature .card {
+    grid-template-columns: 148px minmax(0, 1fr); gap: 28px; padding: 26px;
+    background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+    border-color: color-mix(in srgb, var(--accent) 25%, var(--line));
+  }
+  .side { display: flex; flex-direction: column; gap: 14px; }
+
+  /* Covers look like physical books: rounded fore-edge, shaded spine, cast shadow. */
+  .cover {
+    position: relative; aspect-ratio: 2 / 3; border-radius: 2px 5px 5px 2px;
+    box-shadow: 0 1px 1px rgba(var(--shadow), .12), 0 10px 20px -8px rgba(var(--shadow), .45);
+    transition: transform .25s ease, filter .3s ease;
+  }
+  .cover::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background:
+      linear-gradient(90deg, rgba(0,0,0,.28) 0, rgba(255,255,255,.22) 2px, rgba(0,0,0,.12) 5px, transparent 10px),
+      linear-gradient(90deg, transparent 96%, rgba(0,0,0,.14));
+  }
+  .card:hover .cover { transform: translateY(-3px); }
+  .cover img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+  /* Unread books are greyed out; hovering gives a peek of the colour. */
+  .card.want .cover { filter: grayscale(1) opacity(.55); }
+  .card.want:hover .cover { filter: grayscale(.4) opacity(.85); }
+  /* Stand-in when there's no cover: a cloth-bound book in the genre colour with a foil frame. */
+  .ph {
+    width: 100%; height: 100%; display: grid; place-items: center; padding: 14px; text-align: center; border-radius: inherit;
+    background: var(--g); color: #f6ecd8; font: italic 500 15px/1.15 var(--serif); overflow-wrap: anywhere;
+    box-shadow: inset 0 0 0 6px var(--g), inset 0 0 0 7px rgba(246, 228, 190, .5);
+  }
+  /* Ribbon bookmark on the book being read. */
+  .ribbon {
+    position: absolute; top: -4px; right: 14%; width: 16px; height: 42px; background: var(--accent);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,.3));
+  }
+
+  .status { position: relative; display: block; }
+  .status select {
+    width: 100%; appearance: none; cursor: pointer; font: 500 13px var(--sans); color: var(--ink);
+    background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 5px 24px 5px 24px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none' stroke='%238a8073' stroke-width='1.5'%3E%3Cpath d='m1 1 4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+  }
+  .status::before {
+    content: ""; position: absolute; left: 11px; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; border-radius: 50%;
+    background: var(--s); pointer-events: none;
+  }
+  .card.reading { --s: var(--accent); }
+  .card.read { --s: var(--green); }
+  .card.want { --s: var(--ink-3); }
+  .card.edited .status select { border-style: dashed; border-color: var(--ink-3); }
+  .edited-note { font-size: 11px; color: var(--ink-3); text-align: center; margin: -8px 0 0; }
+
+  .body { min-width: 0; }
+  .genre { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+  h3 { font: 500 23px/1.15 var(--serif); letter-spacing: -.01em; margin: 8px 0 4px; overflow-wrap: anywhere; }
+  .feature h3 { font-size: 34px; font-variation-settings: "opsz" 96; }
+  .byline { font-size: 14px; color: var(--ink-2); margin: 0; }
+  .byline .series { color: var(--ink-3); }
+  .blurb { font: 16px/1.55 var(--serif); color: var(--ink); margin: 14px 0 0; max-width: 62ch; }
+  .feature .blurb { font-size: 18px; }
+
+  .facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--line); font-size: 14px; }
+  .facts dt { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); padding-top: 2px; }
+  .facts dd { margin: 0; color: var(--ink-2); }
+  .stars { color: #c9951f; letter-spacing: 2px; }
+
+  footer { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-3); }
+  footer a { color: var(--ink-2); }
+
+  @media (max-width: 560px) {
+    main { padding: 36px 16px 56px; }
+    .stats { gap: 24px; }
+    .stat dd { font-size: 36px; }
+    .controls { flex-direction: column; align-items: stretch; }
+    input[type="search"] { width: 100%; }
+    .card, .feature .card { grid-template-columns: 96px minmax(0, 1fr); gap: 16px; padding: 16px; }
+    .status select { padding: 5px 18px 5px 20px; background-position: right 7px center; }
+    .status::before { left: 9px; }
+    .feature h3 { font-size: 26px; }
+    .feature .blurb { font-size: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .cover, .track i { transition: none; } .card:hover .cover { transform: none; } }
+</style>
+</head>
+<body>
+<main>
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">Reading log</p>
+      <h1>Book<em>shelf</em></h1>
+      <p class="sub">What I've read, what I'm reading, and what's next.</p>
+    </div>
+    <dl class="stats">
+      <div class="stat read"><dt>Read</dt><dd id="n-read"></dd></div>
+      <div class="stat reading"><dt>Reading</dt><dd id="n-reading"></dd></div>
+      <div class="stat want"><dt>To read</dt><dd id="n-want"></dd></div>
+    </dl>
+  </header>
+
+  <div class="progress">
+    <div class="track"><i id="bar"></i></div>
+    <p id="progress-label"></p>
+  </div>
+
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+  <div class="controls">
+    <div class="chips" id="genres"></div>
+    <input type="search" id="q" placeholder="Search title, author or series" aria-label="Search">
+  </div>
+
+  <div id="sections"></div>
+
+  <footer>Covers from <a href="https://openlibrary.org">Open Library</a>.
+    Status changes made here are saved in this browser only; the book list itself lives in bookshelf.html.</footer>
+</main>
+
+<script>
+// The shelf. To add a book, add an entry. status: "reading", "want" or "read".
+// Optional: series [name, number], started / finished ("YYYY-MM-DD" or "YYYY-MM"), rating (1–5), notes.
+// blurb may use <em>. Covers: https://covers.openlibrary.org/b/id/<cover id>-L.jpg
+const BOOKS = [
+  {
+    title: "Dungeon Crawler Carl", author: "Matt Dinniman", year: 2020,
+    series: ["Dungeon Crawler Carl", 1], genre: "LitRPG",
+    cover: "https://covers.openlibrary.org/b/id/15258908-L.jpg",
+    status: "reading",
+    blurb: `When aliens tear down every building on Earth, <em>Carl</em> and his ex-girlfriend's prize-winning cat
+      <em>Princess Donut</em> end up in the World Dungeon: 18 floors of monsters and loot, streamed live to the whole galaxy.`,
+  },
+];
+
+const STATUS = {
+  reading: { title: "Reading now", tab: "Reading", note: "On the nightstand." },
+  want: { title: "Want to read", tab: "To read", note: "Greyed out until they're read." },
+  read: { title: "Read", tab: "Read", note: "Most recently finished first." },
+};
+const ORDER = ["reading", "want", "read"];
+const GENRES = { LitRPG: "#b4462f", Fantasy: "#6b4c9a", "Sci-fi": "#2f6690", "Non-fiction": "#3d7a5a", Thriller: "#b07d1a", Classic: "#7a5c3e" };
+const genreColor = g => GENRES[g] || "#4f6d7a";
+
+// Per-book status changes made in the page, e.g. { "Dungeon Crawler Carl": "read" }.
+let overrides = {};
+try { overrides = JSON.parse(localStorage.getItem("bookshelf-status")) || {}; } catch (e) {}
+let view = "all", genre = "all", q = "";
+try { const v = localStorage.getItem("bookshelf-view"); if (v === "all" || v in STATUS) view = v; } catch (e) {}
+
+const status = b => overrides[b.title] || b.status;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const save = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const fmtDate = s => {
+  const [y, m, d] = s.split("-").map(Number);
+  return new Date(y, (m || 1) - 1, d || 1).toLocaleDateString("en-US", d ? { month: "short", day: "numeric", year: "numeric" } : { month: "short", year: "numeric" });
+};
+const stars = n => "★".repeat(n) + "☆".repeat(5 - n);
+
+function cover(b) {
+  const ph = Object.assign(document.createElement("div"), { className: "ph", textContent: b.title });
+  ph.style.setProperty("--g", genreColor(b.genre));
+  if (!b.cover) return ph;
+  const img = Object.assign(document.createElement("img"), { src: b.cover, alt: `Cover of ${b.title}`, loading: "lazy" });
+  img.addEventListener("error", () => img.replaceWith(ph));
+  return img;
+}
+
+function card(b) {
+  const st = status(b), edited = st !== b.status;
+  const el = document.createElement("article");
+  el.className = `card ${st}` + (edited ? " edited" : "");
+  const facts = [];
+  if (b.started && st !== "want") facts.push(["Started", esc(fmtDate(b.started))]);
+  if (b.finished && st === "read") facts.push(["Finished", esc(fmtDate(b.finished))]);
+  if (b.rating && st === "read") facts.push(["Rating", `<span class="stars" aria-label="${b.rating} out of 5">${stars(b.rating)}</span>`]);
+  if (b.notes) facts.push(["Notes", esc(b.notes)]);
+  el.innerHTML = `
+    <div class="side">
+      <div class="cover">${st === "reading" ? `<span class="ribbon" aria-hidden="true"></span>` : ""}</div>
+      <label class="status"><select aria-label="Status of ${esc(b.title)}">${ORDER.map(s =>
+        `<option value="${s}" ${s === st ? "selected" : ""}>${STATUS[s].tab}</option>`).join("")}</select></label>
+      ${edited ? `<p class="edited-note">changed here</p>` : ""}
+    </div>
+    <div class="body">
+      <span class="genre" style="--g:${genreColor(b.genre)}"><span class="dot"></span>${esc(b.genre || "Book")}</span>
+      <h3>${esc(b.title)}</h3>
+      <p class="byline">${esc(b.author)}${b.year ? `, ${b.year}` : ""}${b.series ? ` <span class="series">· ${esc(b.series[0])} #${b.series[1]}</span>` : ""}</p>
+      ${b.blurb ? `<p class="blurb">${b.blurb}</p>` : ""}
+      ${facts.length ? `<dl class="facts">${facts.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>` : ""}
+    </div>`;
+  el.querySelector(".cover").prepend(cover(b));
+  el.querySelector("select").addEventListener("change", e => {
+    if (e.target.value === b.status) delete overrides[b.title];
+    else overrides[b.title] = e.target.value;
+    save("bookshelf-status", JSON.stringify(overrides));
+    render();
+  });
+  return el;
+}
+
+function render() {
+  const count = s => BOOKS.filter(b => status(b) === s).length;
+  document.getElementById("tabs").innerHTML = [["all", "All", BOOKS.length], ...ORDER.map(s => [s, STATUS[s].tab, count(s)])]
+    .map(([k, label, n]) => `<button role="tab" data-v="${k}" aria-selected="${k === view}">${label}<sup>${n}</sup></button>`).join("");
+  const genres = [...new Set(BOOKS.map(b => b.genre).filter(Boolean))].sort();
+  document.getElementById("genres").innerHTML = ["all", ...genres].map(g =>
+    `<button class="chip" data-g="${esc(g)}" aria-pressed="${g === genre}">${g === "all" ? "All genres" : `<span class="dot" style="--g:${genreColor(g)}"></span>${esc(g)}`}</button>`).join("");
+
+  const wrap = document.getElementById("sections");
+  wrap.innerHTML = "";
+  const needle = q.trim().toLowerCase();
+  for (const key of view === "all" ? ORDER : [view]) {
+    const list = BOOKS.filter(b => status(b) === key && (genre === "all" || b.genre === genre) &&
+      (!needle || [b.title, b.author, b.series && b.series[0], b.genre].some(x => x && x.toLowerCase().includes(needle))));
+    if (key === "read") list.sort((a, b) => (b.finished || "").localeCompare(a.finished || ""));
+    const sec = document.createElement("section");
+    sec.innerHTML = `<h2>${STATUS[key].title} <span>${list.length}</span></h2><p class="note">${STATUS[key].note}</p>`;
+    const grid = document.createElement("div");
+    grid.className = key === "reading" ? "grid feature" : "grid";
+    list.forEach(b => grid.appendChild(card(b)));
+    sec.appendChild(list.length ? grid : Object.assign(document.createElement("p"), { className: "empty", textContent: "Nothing here yet." }));
+    wrap.appendChild(sec);
+  }
+  const read = count("read"), pct = BOOKS.length ? Math.round(read / BOOKS.length * 100) : 0;
+  document.getElementById("n-read").textContent = read;
+  document.getElementById("n-reading").textContent = count("reading");
+  document.getElementById("n-want").textContent = count("want");
+  document.getElementById("bar").style.width = pct + "%";
+  document.getElementById("progress-label").textContent = `${read} of ${BOOKS.length} ${BOOKS.length === 1 ? "book" : "books"} on the shelf read · ${pct}%`;
+}
+
+document.getElementById("tabs").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  view = b.dataset.v; save("bookshelf-view", view); render();
+});
+document.getElementById("genres").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  genre = b.dataset.g; render();
+});
+document.getElementById("q").addEventListener("input", e => { q = e.target.value; render(); });
+
+render();
+</script>
+</body>
+</html>
