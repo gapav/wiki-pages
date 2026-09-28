@@ -6,7 +6,7 @@
 <title>Bookshelf</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   /* Warm paper and ink; a reading-lamp dark mode. */
   :root {
@@ -18,6 +18,7 @@
     --line: #e2d9c8;
     --accent: #a8432a;
     --green: #3f7355;
+    --gold: #c9951f;
     --shadow: 40, 25, 10;
     --serif: Fraunces, Georgia, "Times New Roman", serif;
     --sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -33,18 +34,21 @@
       --line: #332c23;
       --accent: #e07a52;
       --green: #7fb894;
+      --gold: #e2b54a;
       --shadow: 0, 0, 0;
       color-scheme: dark;
     }
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   body {
     margin: 0; background: var(--paper); color: var(--ink);
     font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased;
   }
   main { max-width: 1080px; margin: 0 auto; padding: 56px 24px 72px; }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  /* Masthead: title on the left, the three counts on the right. */
+  /* Masthead: title on the left; the counts and this year's goal ring on the right. */
   .masthead { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 24px 40px; }
   .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
   h1 {
@@ -53,18 +57,31 @@
   }
   h1 em { font-weight: 400; color: var(--accent); }
   .sub { font: italic 18px/1.4 var(--serif); color: var(--ink-2); margin: 12px 0 0; }
+  .mast-right { display: flex; align-items: flex-end; gap: 36px; flex-wrap: wrap; }
   .stats { display: flex; gap: 36px; margin: 0; }
   .stat { display: flex; flex-direction: column-reverse; }
-  .stat dd { margin: 0; font: 500 44px/1 var(--serif); font-variant-numeric: lining-nums; }
-  .stat dt { font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-top: 6px; }
+  .stat dd { margin: 0; font: 500 44px/1 var(--serif); font-variant-numeric: lining-nums; transform-origin: left bottom; }
+  .stat dt, .goal-mini small { font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-top: 6px; }
   .stat.read dd { color: var(--green); }
   .stat.reading dd { color: var(--accent); }
   .stat.want dd { color: var(--ink-3); }
+  .bump { animation: bump .6s cubic-bezier(.3, 1.8, .5, 1); }
+  @keyframes bump { 40% { transform: scale(1.4); } }
+  .goal-mini { display: flex; flex-direction: column; align-items: center; background: none; border: 0; padding: 0; cursor: pointer; color: inherit; font: inherit; }
+  .ring { position: relative; display: grid; place-items: center; }
+  .ring svg { position: absolute; inset: 0; transform: rotate(-90deg); overflow: visible; }
+  .ring-bg { fill: none; stroke: var(--line); }
+  .ring-fg { fill: none; stroke: var(--green); stroke-linecap: round; transition: stroke-dashoffset .8s cubic-bezier(.3, 1.2, .5, 1); }
+  .ring-pace { stroke: var(--ink-3); stroke-width: 2.5; stroke-linecap: round; }
+  .goal-mini .ring { width: 52px; height: 52px; }
+  .goal-mini .ring-bg, .goal-mini .ring-fg { stroke-width: 5; }
+  .goal-mini b { font: 600 14px var(--serif); font-variant-numeric: lining-nums; }
+  .goal-mini:hover .ring-bg { stroke: var(--ink-3); }
 
   /* Progress: a hairline with the read share drawn thick over it. */
   .progress { margin: 32px 0 0; }
   .track { height: 1px; background: var(--line); position: relative; }
-  .track i { position: absolute; left: 0; top: -2px; height: 5px; border-radius: 3px; background: var(--green); transition: width .5s; }
+  .track i { position: absolute; left: 0; top: -2px; height: 5px; border-radius: 3px; background: var(--green); transition: width .6s cubic-bezier(.3, 1.3, .5, 1); }
   .progress p { margin: 10px 0 0; font-size: 13px; color: var(--ink-3); }
 
   /* Tabs sit on a rule, the selected one underlined. */
@@ -76,7 +93,6 @@
   .tabs button:hover { color: var(--ink); }
   .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
   .tabs button sup { font-size: 11px; font-weight: 600; color: var(--ink-3); margin-left: 3px; }
-  button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   .controls { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; margin: 18px 0 8px; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -100,26 +116,13 @@
   h2 span { font: 500 13px var(--sans); color: var(--ink-3); }
   .note { font: italic 15px var(--serif); color: var(--ink-3); margin: 6px 0 18px; }
   .empty { font: italic 16px var(--serif); color: var(--ink-3); margin: 0; padding: 22px 0; border-top: 1px dashed var(--line); }
-
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(440px, 100%), 1fr)); gap: 18px; }
-  .grid.feature { grid-template-columns: repeat(auto-fill, minmax(min(560px, 100%), 1fr)); }
-
-  .card {
-    display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 20px; align-items: start;
-    background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px;
-  }
-  .feature .card {
-    grid-template-columns: 148px minmax(0, 1fr); gap: 28px; padding: 26px;
-    background: color-mix(in srgb, var(--accent) 5%, var(--surface));
-    border-color: color-mix(in srgb, var(--accent) 25%, var(--line));
-  }
-  .side { display: flex; flex-direction: column; gap: 14px; }
+  .linkish { font: inherit; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 
   /* Covers look like physical books: rounded fore-edge, shaded spine, cast shadow. */
   .cover {
-    position: relative; aspect-ratio: 2 / 3; border-radius: 2px 5px 5px 2px;
+    position: relative; display: block; aspect-ratio: 2 / 3; border-radius: 2px 5px 5px 2px;
     box-shadow: 0 1px 1px rgba(var(--shadow), .12), 0 10px 20px -8px rgba(var(--shadow), .45);
-    transition: transform .25s ease, filter .3s ease;
+    transition: transform .25s ease, filter .6s ease;
   }
   .cover::after {
     content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
@@ -127,23 +130,144 @@
       linear-gradient(90deg, rgba(0,0,0,.28) 0, rgba(255,255,255,.22) 2px, rgba(0,0,0,.12) 5px, transparent 10px),
       linear-gradient(90deg, transparent 96%, rgba(0,0,0,.14));
   }
-  .card:hover .cover { transform: translateY(-3px); }
   .cover img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
-  /* Unread books are greyed out; hovering gives a peek of the colour. */
-  .card.want .cover { filter: grayscale(1) opacity(.55); }
-  .card.want:hover .cover { filter: grayscale(.4) opacity(.85); }
   /* Stand-in when there's no cover: a cloth-bound book in the genre colour with a foil frame. */
   .ph {
-    width: 100%; height: 100%; display: grid; place-items: center; padding: 14px; text-align: center; border-radius: inherit;
-    background: var(--g); color: #f6ecd8; font: italic 500 15px/1.15 var(--serif); overflow-wrap: anywhere;
+    position: absolute; inset: 0; display: grid; place-items: center; padding: 14px; text-align: center; border-radius: inherit;
+    background: var(--g); color: #f6ecd8; font: italic 500 15px/1.15 var(--serif); overflow: hidden; overflow-wrap: break-word; hyphens: auto;
     box-shadow: inset 0 0 0 6px var(--g), inset 0 0 0 7px rgba(246, 228, 190, .5);
   }
+  .node .ph, .month .ph { font-size: 10.5px; padding: 7px; box-shadow: inset 0 0 0 3px var(--g), inset 0 0 0 4px rgba(246, 228, 190, .5); }
   /* Ribbon bookmark on the book being read. */
   .ribbon {
-    position: absolute; top: -4px; right: 14%; width: 16px; height: 42px; background: var(--accent);
+    position: absolute; top: -4px; right: 14%; width: 16px; height: 42px; background: var(--accent); z-index: 1;
     clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
     filter: drop-shadow(0 2px 2px rgba(0,0,0,.3));
   }
+  /* Library-style rubber stamp on finished books. */
+  .stamp {
+    position: absolute; left: 7%; bottom: 11%; z-index: 2; transform: rotate(-12deg);
+    padding: 4px 7px 3px; border: 2px solid var(--green); border-radius: 4px; color: var(--green);
+    background: color-mix(in srgb, var(--paper) 90%, transparent); text-align: center; line-height: 1;
+    text-transform: uppercase; box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  }
+  .stamp b { display: block; font-size: 12px; font-weight: 700; letter-spacing: .2em; margin-right: -.2em; }
+  .stamp small { display: block; font-size: 8px; font-weight: 600; letter-spacing: .04em; margin-top: 2px; }
+  .stamp.in { animation: stamp-in .45s cubic-bezier(.2, 1.6, .4, 1) .15s backwards; }
+  @keyframes stamp-in { from { transform: rotate(-26deg) scale(2.4); opacity: 0; } }
+
+  /* ---------- Reading map ---------- */
+  .map-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; margin: 0 0 12px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+  .lg-read { background: var(--green); border-radius: 50% !important; }
+  .lg-reading { border: 2px solid var(--accent); }
+  .lg-next { border: 2px dashed var(--accent); }
+  .lg-want { background: var(--line); }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+  .seg button { font: 500 12px var(--sans); color: var(--ink-2); background: transparent; border: 0; padding: 4px 11px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+  .map-panel {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 16px 6px;
+    background-image: radial-gradient(color-mix(in srgb, var(--ink-3) 30%, transparent) 1px, transparent 1.3px);
+    background-size: 20px 20px;
+  }
+  .trail + .trail { margin-top: 8px; padding-top: 18px; border-top: 1px dashed var(--line); }
+  .trail-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 0 4px; }
+  .trail-head h3 { font: 500 21px/1.2 var(--serif); margin: 0; }
+  .trail-head .count { font-size: 13px; color: var(--ink-3); }
+  .segs { display: flex; gap: 3px; flex: 0 1 220px; min-width: 100px; }
+  .segs i { flex: 1; height: 6px; border-radius: 3px; background: var(--line); transition: background .4s; }
+  .segs i.read { background: var(--green); }
+  .segs i.reading { background: var(--accent); }
+  .trail-next { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--ink-2); }
+  .trail-next em { font: italic 15px var(--serif); color: var(--ink); }
+  .trail-next .complete { color: var(--green); font-weight: 600; }
+  .more-trails { display: block; margin: 12px auto 10px; }
+  .canvas-wrap { overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
+  .canvas { position: relative; margin: 0 auto; }
+  .canvas svg { position: absolute; inset: 0; overflow: visible; pointer-events: none; }
+  .edge { fill: none; stroke: var(--ink-3); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 2 6; opacity: .55; }
+  /* The path you're walking: from a finished or open book to the next one. */
+  .edge.active { stroke: var(--accent); stroke-dasharray: 6 7; opacity: 1; animation: march 1.1s linear infinite; }
+  .edge.done { stroke: var(--green); stroke-width: 3.5; stroke-dasharray: none; opacity: 1; }
+  .edge.done.draw { stroke-dasharray: 1; animation: draw 1s .1s ease-out backwards; }
+  @keyframes march { to { stroke-dashoffset: -13; } }
+  @keyframes draw { from { stroke-dashoffset: 1; } }
+
+  .node {
+    position: absolute; width: 100px; display: flex; flex-direction: column; align-items: center; gap: 9px;
+    background: none; border: 0; padding: 0; margin: 0; font: inherit; color: inherit; text-align: center; cursor: pointer;
+  }
+  .node .cover { width: 64px; }
+  .node:hover .cover { transform: translateY(-3px); }
+  .node.want .cover { filter: grayscale(1) opacity(.45); }
+  .node.next .cover { filter: grayscale(.5) opacity(.9); outline: 2px dashed var(--accent); outline-offset: 4px; }
+  .node.dim { opacity: .25; }
+  .label { display: flex; flex-direction: column; font-size: 12px; line-height: 1.25; color: var(--ink-3); }
+  .label b { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+  .label span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .node.read .label, .node.reading .label, .node.next .label { color: var(--ink); }
+  .node.suggested .label b { color: var(--accent); }
+  .nprog { display: block; width: 64px; height: 3px; margin-top: -4px; border-radius: 2px; background: var(--line); overflow: hidden; }
+  .nprog i { display: block; height: 100%; background: var(--accent); }
+  .next-tag {
+    position: absolute; top: -27px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+    font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--paper); background: var(--accent); border-radius: 999px; padding: 2px 8px;
+  }
+  .tick {
+    position: absolute; top: -8px; right: -9px; z-index: 2; width: 22px; height: 22px; border-radius: 50%;
+    display: grid; place-items: center; background: var(--green); color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,.3);
+  }
+  .tick svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+  .halo { position: absolute; inset: -6px; border: 2px solid var(--accent); border-radius: 7px; animation: halo 2.2s ease-out infinite; }
+  @keyframes halo { from { transform: scale(.94); opacity: .9; } to { transform: scale(1.18); opacity: 0; } }
+  .node.pop .tick { animation: pop .6s .5s cubic-bezier(.3, 1.8, .5, 1) backwards; }
+  .node.unlock .cover { animation: unlock 1s .8s cubic-bezier(.3, 1.6, .5, 1) backwards; }
+  .node.unlock .next-tag { animation: pop .6s 1.1s cubic-bezier(.3, 1.8, .5, 1) backwards; }
+  @keyframes pop { from { transform: scale(0); } }
+  @keyframes unlock { from { transform: scale(.85); filter: grayscale(1) opacity(.45); outline-color: transparent; } 55% { transform: scale(1.12); } }
+  .loose-row { display: flex; flex-wrap: wrap; gap: 30px 8px; padding: 34px 0 16px; }
+  .loose-row .node { position: relative; }
+  .trail-head code { font-size: 12px; background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+  /* Compact map: small covers, no labels (hover a cover for its title). */
+  .map-panel.compact .node { width: 56px; gap: 6px; }
+  .map-panel.compact .node .cover, .map-panel.compact .nprog { width: 40px; }
+  .map-panel.compact .label { display: none; }
+  .map-panel.compact .next-tag { top: -21px; font-size: 8px; padding: 1px 6px; }
+  .map-panel.compact .tick { width: 17px; height: 17px; top: -7px; right: -8px; }
+  .map-panel.compact .tick svg { width: 10px; height: 10px; }
+  .map-panel.compact .halo { inset: -4px; }
+  .map-panel.compact .loose-row { gap: 24px 6px; padding-top: 28px; }
+
+  /* ---------- Cards ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(440px, 100%), 1fr)); gap: 18px; }
+  .grid.feature { grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr)); }
+  .card {
+    position: relative; display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 20px; align-items: start;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px;
+  }
+  .card.featured {
+    grid-template-columns: 148px minmax(0, 1fr); gap: 28px; padding: 26px;
+    background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+    border-color: color-mix(in srgb, var(--accent) 25%, var(--line));
+  }
+  /* Several books on the go: featured cards sit side by side, a little smaller. */
+  .feature.multi .card.featured { grid-template-columns: 112px minmax(0, 1fr); gap: 22px; padding: 22px; }
+  .feature.multi .featured h3 { font-size: 26px; }
+  .feature.multi .featured .blurb { font-size: 16px; }
+  .card.flash { animation: flash 1.4s ease-out; }
+  @keyframes flash { 0%, 35% { box-shadow: 0 0 0 3px var(--accent); } 100% { box-shadow: 0 0 0 3px transparent; } }
+  .side { display: flex; flex-direction: column; gap: 14px; }
+  .card:hover .cover { transform: translateY(-3px); }
+  /* Unread books are greyed out; hovering gives a peek of the colour. The next one in line is half lit. */
+  .card.want .cover { filter: grayscale(1) opacity(.55); }
+  .card.want.next .cover { filter: grayscale(.5) opacity(.85); }
+  .card.want:hover .cover { filter: grayscale(.3) opacity(.9); }
+  .card.checking .cover { filter: none !important; }
 
   .status { position: relative; display: block; }
   .status select {
@@ -162,36 +286,170 @@
   .card.edited .status select { border-style: dashed; border-color: var(--ink-3); }
   .edited-note { font-size: 11px; color: var(--ink-3); text-align: center; margin: -8px 0 0; }
 
+  /* The tick-off button: a circle in the corner, or a labelled pill on the featured card. */
+  .check {
+    position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%;
+    display: grid; place-items: center; cursor: pointer; padding: 0;
+    background: var(--paper); border: 2px solid var(--line); color: transparent;
+    transition: background .2s, border-color .2s, color .2s;
+  }
+  .check svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  .check:hover { border-color: var(--green); color: color-mix(in srgb, var(--green) 50%, transparent); }
+  .check[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: #fff; }
+  .check .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .check.pill {
+    position: static; width: auto; height: auto; display: inline-flex; gap: 8px;
+    border-radius: 999px; padding: 8px 18px 8px 12px; font: 600 14px var(--sans); color: var(--ink);
+  }
+  .check.pill svg { color: var(--green); }
+  .check.pill .lbl { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
+  .check.pill[aria-pressed="true"], .check.pill[aria-pressed="true"] svg { color: #fff; }
+  /* On the last page: the button asks to be pressed. */
+  .check.pill.ready { border-color: var(--green); animation: ready 1.6s ease-in-out infinite; }
+  @keyframes ready { 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--green) 22%, transparent); } }
+  .check.go { animation: pop-check .55s cubic-bezier(.3, 1.8, .5, 1); }
+  .check.go path { stroke-dasharray: 1; animation: draw .35s .08s ease-out backwards; }
+  @keyframes pop-check { 30% { transform: scale(.82); } 65% { transform: scale(1.18); } }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 20px; }
+  .start-row { margin: 12px 0 0; font-size: 13px; }
+
   .body { min-width: 0; }
+  .card:not(.featured) .body { padding-right: 40px; }
+  .genre-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
   .genre { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
-  h3 { font: 500 23px/1.15 var(--serif); letter-spacing: -.01em; margin: 8px 0 4px; overflow-wrap: anywhere; }
-  .feature h3 { font-size: 34px; font-variation-settings: "opsz" 96; }
+  .upnext { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--paper); background: var(--accent); border-radius: 999px; padding: 2px 8px; }
+  .suggest { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid currentColor; border-radius: 999px; padding: 1px 7px; }
+  .body h3 { font: 500 23px/1.15 var(--serif); letter-spacing: -.01em; margin: 8px 0 4px; overflow-wrap: anywhere; }
+  .featured h3 { font-size: 34px; font-variation-settings: "opsz" 96; }
   .byline { font-size: 14px; color: var(--ink-2); margin: 0; }
   .byline .series { color: var(--ink-3); }
   .blurb { font: 16px/1.55 var(--serif); color: var(--ink); margin: 14px 0 0; max-width: 62ch; }
-  .feature .blurb { font-size: 18px; }
+  .featured .blurb { font-size: 18px; }
+
+  /* Page progress on books being read. */
+  .pages { margin-top: 18px; max-width: 460px; }
+  .pbar { height: 6px; border-radius: 3px; background: color-mix(in srgb, var(--accent) 14%, var(--line)); overflow: hidden; }
+  .pbar i { display: block; height: 100%; border-radius: 3px; background: var(--accent); transition: width .4s ease; }
+  .prow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 10px; font-size: 13px; color: var(--ink-2); }
+  .prow input {
+    width: 68px; font: 600 14px var(--sans); color: var(--ink); text-align: center;
+    background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 3px 6px;
+  }
+  .pmeta { color: var(--ink-3); }
+  .addps { display: inline-flex; gap: 6px; }
+  .addp { font: 600 12px var(--sans); color: var(--ink-2); background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; cursor: pointer; }
+  .addp:hover { border-color: var(--accent); color: var(--accent); }
 
   .facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--line); font-size: 14px; }
   .facts dt { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); padding-top: 2px; }
   .facts dd { margin: 0; color: var(--ink-2); }
-  .stars { color: #c9951f; letter-spacing: 2px; }
+  .stars { color: var(--gold); letter-spacing: 2px; }
+
+  /* ---------- Year view ---------- */
+  .year-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .year-nav { display: flex; gap: 6px; }
+  .goal-panel {
+    display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 32px; align-items: center; margin-top: 18px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 26px 28px;
+  }
+  .goal-panel .ring { width: 160px; height: 160px; }
+  .goal-panel .ring-bg, .goal-panel .ring-fg { stroke-width: 12; }
+  .ring-center { text-align: center; line-height: 1; }
+  .ring-center b { display: block; font: 500 48px var(--serif); font-variant-numeric: lining-nums; }
+  .ring-center small { display: block; margin-top: 6px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .goal-text h3 { font: 500 26px/1.2 var(--serif); margin: 0; }
+  .pace-line { margin: 6px 0 0; font-size: 15px; color: var(--ink-2); }
+  .pace-line strong { color: var(--green); font-weight: 600; }
+  .pace-line strong.behind { color: var(--accent); }
+  .goal-edit { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; color: var(--ink-3); }
+  .goal-edit input { width: 56px; font: 600 14px var(--sans); color: var(--ink); text-align: center; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 3px 6px; }
+  .year-stats { display: flex; flex-wrap: wrap; gap: 14px 32px; margin: 18px 0 0; padding-top: 16px; border-top: 1px solid var(--line); }
+  .year-stats div { display: flex; flex-direction: column-reverse; }
+  .year-stats dd { margin: 0; font: 500 24px/1.1 var(--serif); font-variant-numeric: lining-nums; }
+  .year-stats dd em { font-size: 17px; }
+  .year-stats dt { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-top: 4px; }
+
+  .months { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px; }
+  .month { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 10px 2px 16px; border-radius: 10px; min-height: 140px; }
+  .month.now { background: color-mix(in srgb, var(--accent) 6%, var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 28%, var(--line)); }
+  .mname { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .month.now .mname { color: var(--accent); }
+  .month.future .mname { opacity: .45; }
+  .mstack { display: flex; flex-direction: column; align-items: center; }
+  .mbook { display: block; background: none; border: 0; padding: 0; cursor: pointer; }
+  .mbook .cover { width: 44px; }
+  .mstack .mbook + .mbook { margin-top: -40px; }
+  .mstack .mbook:hover { position: relative; z-index: 2; }
+  .mbook.ghost .cover { opacity: .6; outline: 2px dashed var(--accent); outline-offset: 3px; }
+  .mreading { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 6px; width: 100%; padding-top: 10px; border-top: 1px dashed color-mix(in srgb, var(--accent) 35%, var(--line)); }
+  .mreading small { flex-basis: 100%; text-align: center; font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  .mreading .mbook .cover { width: 30px; outline-offset: 2px; }
+  .mslot { width: 44px; height: 66px; border: 2px dashed var(--line); border-radius: 4px; display: grid; place-items: center; color: var(--ink-3); font-size: 20px; }
+  .mcount { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+
+  .milestones { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); gap: 12px; }
+  .ms { display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+  .medal {
+    flex: none; width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center;
+    font: 600 15px var(--serif); font-variant-numeric: lining-nums; color: var(--ink-3); border: 2px dashed var(--line);
+  }
+  .ms.earned .medal {
+    border: 0; color: #3b2a05;
+    background: radial-gradient(circle at 35% 30%, #f7e0a0, var(--gold) 60%, #9a6c10);
+    box-shadow: inset 0 0 0 3px rgba(255,255,255,.35), 0 3px 8px rgba(var(--shadow), .3);
+  }
+  .ms.target { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+  .ms.target .medal { border-color: var(--accent); color: var(--accent); }
+  .ms b { display: block; font: 500 16px/1.25 var(--serif); }
+  .ms.locked b { color: var(--ink-2); }
+  .ms small { display: block; font-size: 12px; color: var(--ink-3); }
+  .ms .mbar { display: block; height: 4px; border-radius: 2px; background: var(--line); margin: 7px 0 4px; overflow: hidden; }
+  .ms .mbar i { display: block; height: 100%; background: var(--accent); }
+  .ms .flag { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+
+  /* Confetti from the tick-off button, and the toast that follows. */
+  .particle { position: fixed; z-index: 50; pointer-events: none; will-change: transform, opacity; }
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; z-index: 40; transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
+    display: flex; align-items: center; gap: 16px; width: max-content; max-width: calc(100vw - 32px);
+    background: var(--ink); color: var(--paper); border-radius: 12px; padding: 12px 12px 12px 18px;
+    font-size: 14px; box-shadow: 0 12px 32px rgba(0,0,0,.28); transition: opacity .3s, transform .3s;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+  .toast em { font: italic 15px var(--serif); }
+  .toast .medal-tag { color: var(--gold); font-weight: 700; }
+  .toast button {
+    flex: none; font: 600 13px var(--sans); color: var(--paper); background: transparent; cursor: pointer;
+    border: 1px solid color-mix(in srgb, var(--paper) 35%, transparent); border-radius: 999px; padding: 5px 12px;
+  }
 
   footer { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-3); }
+  footer p { margin: 0 0 6px; }
   footer a { color: var(--ink-2); }
 
   @media (max-width: 560px) {
     main { padding: 36px 16px 56px; }
-    .stats { gap: 24px; }
+    .mast-right, .stats { gap: 22px; }
+    .tabs { column-gap: 17px; }
     .stat dd { font-size: 36px; }
     .controls { flex-direction: column; align-items: stretch; }
     input[type="search"] { width: 100%; }
-    .card, .feature .card { grid-template-columns: 96px minmax(0, 1fr); gap: 16px; padding: 16px; }
+    .card, .card.featured, .feature.multi .card.featured { grid-template-columns: 96px minmax(0, 1fr); gap: 16px; padding: 16px; }
+    .featured h3, .feature.multi .featured h3 { font-size: 26px; }
+    .featured .blurb { font-size: 16px; }
     .status select { padding: 5px 18px 5px 20px; background-position: right 7px center; }
     .status::before { left: 9px; }
-    .feature h3 { font-size: 26px; }
-    .feature .blurb { font-size: 16px; }
+    .map-panel { padding: 16px 8px 4px; }
+    .goal-panel { grid-template-columns: 1fr; justify-items: center; text-align: center; padding: 22px 18px; }
+    .year-stats { justify-content: center; }
+    .months { grid-template-columns: repeat(6, minmax(0, 1fr)); row-gap: 10px; }
   }
-  @media (prefers-reduced-motion: reduce) { .cover, .track i { transition: none; } .card:hover .cover { transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .cover, .track i, .segs i, .ring-fg, .pbar i { transition: none; }
+    .card:hover .cover, .node:hover .cover { transform: none; }
+    .edge.active, .halo, .bump, .stamp.in, .check.go, .check.go path, .edge.done.draw, .check.pill.ready,
+    .node.pop .tick, .node.unlock .cover, .node.unlock .next-tag, .card.flash { animation: none; }
+  }
 </style>
 </head>
 <body>
@@ -202,11 +460,14 @@
       <h1>Book<em>shelf</em></h1>
       <p class="sub">What I've read, what I'm reading, and what's next.</p>
     </div>
-    <dl class="stats">
-      <div class="stat read"><dt>Read</dt><dd id="n-read"></dd></div>
-      <div class="stat reading"><dt>Reading</dt><dd id="n-reading"></dd></div>
-      <div class="stat want"><dt>To read</dt><dd id="n-want"></dd></div>
-    </dl>
+    <div class="mast-right">
+      <dl class="stats">
+        <div class="stat read"><dt>Read</dt><dd id="n-read"></dd></div>
+        <div class="stat reading"><dt>Reading</dt><dd id="n-reading"></dd></div>
+        <div class="stat want"><dt>To read</dt><dd id="n-want"></dd></div>
+      </dl>
+      <button type="button" class="goal-mini" id="goal-mini"></button>
+    </div>
   </header>
 
   <div class="progress">
@@ -215,55 +476,194 @@
   </div>
 
   <nav class="tabs" role="tablist" id="tabs"></nav>
-  <div class="controls">
+  <div class="controls" id="controls">
     <div class="chips" id="genres"></div>
     <input type="search" id="q" placeholder="Search title, author or series" aria-label="Search">
   </div>
 
   <div id="sections"></div>
 
-  <footer>Covers from <a href="https://openlibrary.org">Open Library</a>.
-    Status changes made here are saved in this browser only; the book list itself lives in bookshelf.html.</footer>
+  <footer>
+    <p id="local" hidden><span id="local-n"></span> <button class="linkish" id="copy" type="button">Copy changes</button></p>
+    <p>Covers and page counts from <a href="https://openlibrary.org">Open Library</a>. Changes made here are saved in this browser only; the book list itself lives in bookshelf.html.</p>
+  </footer>
 </main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 // The shelf. To add a book, add an entry. status: "reading", "want" or "read".
-// Optional: series [name, number], started / finished ("YYYY-MM-DD" or "YYYY-MM"), rating (1–5), notes.
+// Optional: series [name, number], pages, started / finished ("YYYY-MM-DD" or "YYYY-MM"), rating (1–5), notes,
+// after: ["Other title", …] to connect a book to the ones that led you to it (series books connect on their own),
+// suggested: true for books recommended rather than picked.
 // blurb may use <em>. Covers: https://covers.openlibrary.org/b/id/<cover id>-L.jpg
+const DCC = "Dungeon Crawler Carl";
 const BOOKS = [
   {
-    title: "Dungeon Crawler Carl", author: "Matt Dinniman", year: 2020,
-    series: ["Dungeon Crawler Carl", 1], genre: "LitRPG",
+    title: "Dungeon Crawler Carl", author: "Matt Dinniman", year: 2020, series: [DCC, 1], genre: "LitRPG", pages: 464,
     cover: "https://covers.openlibrary.org/b/id/15258908-L.jpg",
     status: "reading",
     blurb: `When aliens tear down every building on Earth, <em>Carl</em> and his ex-girlfriend's prize-winning cat
       <em>Princess Donut</em> end up in the World Dungeon: 18 floors of monsters and loot, streamed live to the whole galaxy.`,
   },
+  // Sequels have no blurbs on purpose: they'd spoil the earlier books.
+  { title: "Carl's Doomsday Scenario", author: "Matt Dinniman", year: 2021, series: [DCC, 2], genre: "LitRPG", pages: 384,
+    cover: "https://covers.openlibrary.org/b/id/15258909-L.jpg", status: "want" },
+  { title: "The Dungeon Anarchist's Cookbook", author: "Matt Dinniman", year: 2021, series: [DCC, 3], genre: "LitRPG", pages: 544,
+    cover: "https://covers.openlibrary.org/b/id/15258910-L.jpg", status: "want" },
+  { title: "The Gate of the Feral Gods", author: "Matt Dinniman", year: 2021, series: [DCC, 4], genre: "LitRPG", pages: 608,
+    cover: "https://covers.openlibrary.org/b/id/15258911-L.jpg", status: "want" },
+  { title: "The Butcher's Masquerade", author: "Matt Dinniman", year: 2022, series: [DCC, 5], genre: "LitRPG", pages: 720,
+    cover: "https://covers.openlibrary.org/b/id/15258912-L.jpg", status: "want" },
+  { title: "The Eye of the Bedlam Bride", author: "Matt Dinniman", year: 2023, series: [DCC, 6], genre: "LitRPG", pages: 832,
+    cover: "https://covers.openlibrary.org/b/id/15258913-L.jpg", status: "want" },
+  { title: "This Inevitable Ruin", author: "Matt Dinniman", year: 2024, series: [DCC, 7], genre: "LitRPG", pages: 880,
+    cover: "https://covers.openlibrary.org/b/id/15258914-L.jpg", status: "want" },
+  { title: "A Parade of Horribles", author: "Matt Dinniman", year: 2026, series: [DCC, 8], genre: "LitRPG", pages: 704,
+    cover: "https://covers.openlibrary.org/b/id/15176333-L.jpg", status: "want" },
+
+  // Suggested branches for when Carl has you hooked on game-system stories.
+  {
+    title: "He Who Fights with Monsters", author: "Shirtaloon", year: 2021, series: ["He Who Fights with Monsters", 1],
+    genre: "LitRPG", pages: 723, cover: "https://covers.openlibrary.org/b/id/15250745-L.jpg",
+    status: "want", suggested: true, after: [DCC],
+    blurb: `<em>Jason Asano</em> wakes up in a world of magic, monsters and adventurers with nothing but a sharp tongue,
+      and has to learn how its power system works before it kills him. Snarky, funny and fond of its own lore.`,
+  },
+  {
+    title: "The Primal Hunter", author: "Zogarth", year: 2022, series: ["The Primal Hunter", 1],
+    genre: "LitRPG", pages: 714, cover: "https://covers.openlibrary.org/b/id/12884273-L.jpg",
+    status: "want", suggested: true, after: [DCC],
+    blurb: `A System arrives on Earth and drags an office worker and his colleagues into a deadly tutorial.
+      <em>Jake</em> finds out he was built for the hunt. Solo leveling, archery and a lot of alchemy.`,
+  },
+  {
+    title: "Unsouled", author: "Will Wight", year: 2016, series: ["Cradle", 1],
+    genre: "Progression fantasy", pages: 292, cover: "https://covers.openlibrary.org/b/id/9963334-L.jpg",
+    status: "want", suggested: true, after: [DCC],
+    blurb: `<em>Lindon</em> is born Unsouled, barred from his clan's sacred arts, until a glimpse of the future sends
+      him looking for a path to power beyond his valley. Short, fast books in a long series.`,
+  },
 ];
 
+// Books to finish per year, counted from `from` (the day tracking started) for pace.
+const GOALS = { 2026: { books: 4, from: "2026-09-28" } };
+
 const STATUS = {
-  reading: { title: "Reading now", tab: "Reading", note: "On the nightstand." },
-  want: { title: "Want to read", tab: "To read", note: "Greyed out until they're read." },
+  reading: { title: "Reading now", tab: "Reading", note: "On the nightstand. Tick it off when you finish." },
+  want: { title: "Want to read", tab: "To read", note: "Greyed out until they're read. Tick one off to bring it to life." },
   read: { title: "Read", tab: "Read", note: "Most recently finished first." },
 };
 const ORDER = ["reading", "want", "read"];
-const GENRES = { LitRPG: "#b4462f", Fantasy: "#6b4c9a", "Sci-fi": "#2f6690", "Non-fiction": "#3d7a5a", Thriller: "#b07d1a", Classic: "#7a5c3e" };
+const GENRES = { LitRPG: "#b4462f", Fantasy: "#6b4c9a", "Progression fantasy": "#2f7d7a", "Sci-fi": "#2f6690", "Non-fiction": "#3d7a5a", Thriller: "#b07d1a", Classic: "#7a5c3e" };
 const genreColor = g => GENRES[g] || "#4f6d7a";
+// Reached by reading; each is re-derived from finish dates, so it also knows when it was earned.
+const MILESTONES = [
+  { key: "b1", badge: "1", title: "First book", of: "books", need: 1 },
+  { key: "b5", badge: "5", title: "Five books", of: "books", need: 5 },
+  { key: "b10", badge: "10", title: "Ten books", of: "books", need: 10 },
+  { key: "b25", badge: "25", title: "Twenty-five books", of: "books", need: 25 },
+  { key: "b50", badge: "50", title: "Fifty books", of: "books", need: 50 },
+  { key: "s1", badge: "S", title: "First series finished", of: "series", need: 1 },
+  { key: "s3", badge: "3S", title: "Three series finished", of: "series", need: 3 },
+  { key: "g3", badge: "G3", title: "Three genres read", of: "genres", need: 3 },
+  { key: "big", badge: "800", title: "An 800-page book", of: "big", need: 1 },
+  { key: "p5k", badge: "5k", title: "5,000 pages", of: "pages", need: 5000 },
+  { key: "p10k", badge: "10k", title: "10,000 pages", of: "pages", need: 10000 },
+];
+const UNITS = { books: ["book", "books"], series: ["series", "series"], genres: ["genre", "genres"], big: ["book over 800 pages", "books over 800 pages"], pages: ["page", "pages"] };
+const unit = (of, n) => UNITS[of][n === 1 ? 0 : 1];
+// Map geometry, in px: node box, cover, row height, padding, the gentle wave on single-lane trails, column spacing bounds.
+const GEOM = {
+  comfortable: { nodeW: 100, coverW: 64, coverH: 96, nodeH: 158, row: 208, tag: 27, padX: 16, padY: 36, wave: 10, minCol: 108, maxCol: 150 },
+  compact: { nodeW: 56, coverW: 40, coverH: 60, nodeH: 70, row: 114, tag: 21, padX: 12, padY: 28, wave: 6, minCol: 62, maxCol: 90 },
+};
+const MAX_TRAILS = 3;
+const CHECK = `<svg viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const THIS_YEAR = new Date().getFullYear();
 
-// Per-book status changes made in the page, e.g. { "Dungeon Crawler Carl": "read" }.
-let overrides = {};
-try { overrides = JSON.parse(localStorage.getItem("bookshelf-status")) || {}; } catch (e) {}
-let view = "all", genre = "all", q = "";
-try { const v = localStorage.getItem("bookshelf-view"); if (v === "all" || v in STATUS) view = v; } catch (e) {}
-
-const status = b => overrides[b.title] || b.status;
-const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const load = (k, fallback) => { try { return JSON.parse(localStorage.getItem(k)) ?? fallback; } catch (e) { return fallback; } };
+const loadRaw = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
 const save = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+// Changes made in the page, per title: any of { status, started, finished, page }. Older saves stored just the status string.
+let overrides = {};
+for (const [t, v] of Object.entries(load("bookshelf-status", {}))) overrides[t] = typeof v === "string" ? { status: v } : v;
+let goalOverrides = load("bookshelf-goals", {});
+let view = "all", genre = "all", q = "", yearSel = THIS_YEAR, showAllTrails = false, G;
+{ const v = loadRaw("bookshelf-view"); if (v === "all" || v === "year" || v in STATUS) view = v; }
+let density = loadRaw("bookshelf-density") === "compact" ? "compact" : "comfortable";
+
+const cur = b => ({ ...b, ...overrides[b.title] });
+const status = b => cur(b).status;
+const byTitle = t => BOOKS.find(b => b.title === t);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const saveOverrides = () => save("bookshelf-status", JSON.stringify(overrides));
+const today = () => { const d = new Date(); return [d.getFullYear(), d.getMonth() + 1, d.getDate()].map(n => String(n).padStart(2, "0")).join("-"); };
 const fmtDate = s => {
   const [y, m, d] = s.split("-").map(Number);
   return new Date(y, (m || 1) - 1, d || 1).toLocaleDateString("en-US", d ? { month: "short", day: "numeric", year: "numeric" } : { month: "short", year: "numeric" });
 };
+const fmtNum = n => n.toLocaleString("en-US");
 const stars = n => "★".repeat(n) + "☆".repeat(5 - n);
+const matches = (b, needle) => !needle || [b.title, b.author, b.series && b.series[0], b.genre].some(x => x && x.toLowerCase().includes(needle));
+const stampHTML = (b, anim) => `<span class="stamp${anim ? " in" : ""}"><b>Read</b>${cur(b).finished ? `<small>${esc(fmtDate(cur(b).finished))}</small>` : ""}</span>`;
+const titles = (list, max = 3) => list.slice(0, max).map(b => `<em>${esc(b.title)}</em>`).join(", ") + (list.length > max ? ` and ${list.length - max} more` : "");
+const pagePct = b => { const c = cur(b); return c.pages ? Math.min(100, Math.round((c.page || 0) / c.pages * 100)) : 0; };
+
+// Merge changes into a book's override; drop fields that match the file, and the override once it's empty.
+function patch(b, changes) {
+  const o = { ...overrides[b.title], ...changes };
+  for (const k of Object.keys(o)) if (o[k] === undefined || o[k] === b[k]) delete o[k];
+  if (Object.keys(o).length) overrides[b.title] = o; else delete overrides[b.title];
+  saveOverrides();
+}
+function setStatus(b, st) {
+  const c = cur(b), o = overrides[b.title] || {}, ch = { status: st };
+  if (st === "reading" && !c.started) ch.started = today();
+  if (st === "read" && !c.finished) ch.finished = today();
+  if (st !== "read" && o.finished) ch.finished = undefined;
+  if (st === "want" && o.started) ch.started = undefined;
+  if (st !== "reading" && o.page !== undefined) ch.page = undefined;
+  patch(b, ch);
+}
+function setPage(b, n) {
+  const c = cur(b);
+  patch(b, { page: Math.max(0, Math.min(c.pages || Infinity, Math.round(n) || 0)) });
+}
+
+// Books connect through series order and `after` links. Connected books form one trail on the map.
+function buildGraph() {
+  const edges = [], seriesLists = new Map();
+  for (const b of BOOKS) if (b.series) {
+    if (!seriesLists.has(b.series[0])) seriesLists.set(b.series[0], []);
+    seriesLists.get(b.series[0]).push(b);
+  }
+  for (const list of seriesLists.values()) {
+    list.sort((a, b) => a.series[1] - b.series[1]);
+    for (let i = 1; i < list.length; i++) edges.push({ from: list[i - 1], to: list[i] });
+  }
+  for (const b of BOOKS) for (const t of b.after || []) if (byTitle(t)) edges.push({ from: byTitle(t), to: b });
+  const root = new Map(BOOKS.map(b => [b, b]));
+  const find = b => root.get(b) === b ? b : find(root.get(b));
+  edges.forEach(e => root.set(find(e.from), find(e.to)));
+  const groups = new Map();
+  for (const b of BOOKS) { const r = find(b); if (!groups.has(r)) groups.set(r, []); groups.get(r).push(b); }
+  const preds = new Map(BOOKS.map(b => [b, []]));
+  edges.forEach(e => preds.get(e.to).push(e.from));
+  return { edges, preds, groups: [...groups.values()], seriesLists };
+}
+// "Up next": unread, and everything that leads to it is read or being read.
+const isNext = b => status(b) === "want" && G.preds.get(b).length > 0 && G.preds.get(b).every(p => status(p) !== "want");
+const nextLabel = b => b.suggested ? "Try next" : "Up next";
+function trailName(group) {
+  const names = group.filter(b => b.series).map(b => b.series[0]);
+  const count = n => names.filter(x => x === n).length;
+  const main = names.sort((a, b) => count(b) - count(a))[0];
+  if (!main) return group[0].title;
+  const others = group.filter(b => !b.series || b.series[0] !== main).length;
+  return others ? `${main} + ${others} connected` : main;
+}
 
 function cover(b) {
   const ph = Object.assign(document.createElement("div"), { className: "ph", textContent: b.title });
@@ -274,79 +674,552 @@ function cover(b) {
   return img;
 }
 
-function card(b) {
-  const st = status(b), edited = st !== b.status;
+// ---------- Reading map ----------
+function node(b, opts) {
+  const st = status(b), next = isNext(b);
+  const el = document.createElement("button");
+  el.type = "button";
+  el.className = `node ${st}` + (next ? " next" : "") + (b.suggested ? " suggested" : "") + (!matches(b, opts.needle) ? " dim" : "") +
+    (opts.justRead === b.title ? " pop" : "") +
+    (next && G.preds.get(b).some(p => p.title === opts.justRead) ? " unlock" : "");
+  el.dataset.title = b.title;
+  el.title = b.title;
+  el.setAttribute("aria-label", `${b.title}: ${STATUS[st].tab}${next ? ", up next" : ""}`);
+  const tag = density === "compact" ? "Next" : nextLabel(b);
+  el.innerHTML = `${next ? `<span class="next-tag">${tag}</span>` : ""}
+    <span class="cover">${st === "read" ? `<span class="tick">${CHECK}</span>` : ""}${st === "reading" ? `<span class="halo"></span>` : ""}</span>
+    ${st === "reading" && b.pages ? `<span class="nprog"><i style="width:${pagePct(b)}%"></i></span>` : ""}
+    <span class="label"><b>${b.suggested ? "Suggested" : b.series ? `Book ${b.series[1]}` : esc(b.author)}</b><span>${esc(b.title)}</span></span>`;
+  el.querySelector(".cover").prepend(cover(b));
+  return el;
+}
+
+// Layered layout, left to right: a book sits one column after the furthest book that leads to it.
+// Rows: a book lines up with its predecessors; siblings that would collide fan out below. Side branches
+// that lead nowhere yet (like suggestions) then pack sideways into the first free cell of a higher row,
+// so a book with many branches grows the map wider rather than taller.
+function trail(group, availW, opts) {
+  const M = GEOM[density];
+  const inGroup = new Set(group);
+  const E = G.edges.filter(e => inGroup.has(e.from) && inGroup.has(e.to));
+  const depth = new Map(group.map(b => [b, 0]));
+  for (let i = 0; i < group.length; i++) for (const e of E) depth.set(e.to, Math.max(depth.get(e.to), depth.get(e.from) + 1));
+  const layers = [];
+  for (const b of group) (layers[depth.get(b)] ||= []).push(b);
+  const pos = new Map();
+  layers.forEach(L => {
+    const want = b => { const ps = E.filter(e => e.to === b && pos.has(e.from)).map(e => pos.get(e.from)); return ps.length ? Math.round(ps.reduce((s, x) => s + x, 0) / ps.length) : 0; };
+    L.sort((a, b) => want(a) - want(b));
+    let last = -1;
+    for (const b of L) { const p = Math.max(want(b), last + 1); pos.set(b, p); last = p; }
+  });
+  const colOf = new Map(depth), cols = layers.length;
+  const taken = new Set(group.map(b => `${colOf.get(b)},${pos.get(b)}`));
+  const hasNext = new Set(E.map(e => e.from));
+  for (const b of [...group].sort((a, z) => pos.get(a) - pos.get(z) || depth.get(a) - depth.get(z))) {
+    const p = E.find(e => e.to === b)?.from;
+    if (hasNext.has(b) || !p || pos.get(b) === pos.get(p)) continue;
+    taken.delete(`${colOf.get(b)},${pos.get(b)}`);
+    search: for (let r = pos.get(p) + 1; r <= pos.get(b); r++)
+      for (let c = depth.get(b); c < cols; c++) if (!taken.has(`${c},${r}`)) { colOf.set(b, c); pos.set(b, r); break search; }
+    taken.add(`${colOf.get(b)},${pos.get(b)}`);
+  }
+  // Close up rows the packing emptied.
+  const used = [...new Set(pos.values())].sort((a, z) => a - z);
+  for (const b of group) pos.set(b, used.indexOf(pos.get(b)));
+  const rows = used.length;
+  const col = cols > 1 ? Math.max(M.minCol, Math.min(M.maxCol, (availW - 2 * M.padX - M.nodeW) / (cols - 1))) : 0;
+  const W = 2 * M.padX + (cols - 1) * col + M.nodeW;
+  const wave = rows === 1 ? M.wave : 0;
+  const H = 2 * M.padY + 2 * wave + (rows - 1) * M.row + M.nodeH;
+  const xy = b => {
+    const c = colOf.get(b);
+    return { x: M.padX + c * col, y: M.padY + wave + pos.get(b) * M.row + Math.sin(c * 1.1) * wave };
+  };
+
+  // Same row: a gentle curve between covers. Across rows: drop from the source, run along the gutter
+  // above the target's row, and come down into the target, so lines never cross another cover.
+  const LAYER = { "": 0, active: 1, done: 2 };
+  const paths = E.map(e => {
+    const a = xy(e.from), z = xy(e.to), s1 = status(e.from), s2 = status(e.to);
+    const cls = s1 === "read" && s2 === "read" ? "done" : s1 !== "want" && s2 !== "read" ? "active" : "";
+    const x1 = a.x + (M.nodeW + M.coverW) / 2 + 7, y1 = a.y + M.coverH / 2;
+    let d;
+    if (pos.get(e.from) === pos.get(e.to)) {
+      const x2 = z.x + (M.nodeW - M.coverW) / 2 - 7, y2 = z.y + M.coverH / 2, dx = (x2 - x1) / 2;
+      d = `M${x1} ${y1} C${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+    } else {
+      const r = 6, gx = a.x + M.nodeW + Math.max(4, (col - M.nodeW) / 2), tx = z.x + M.nodeW / 2, ty = z.y - (isNext(e.to) ? M.tag : 8), gy = ty - 12, s = gy > y1 ? 1 : -1;
+      d = `M${x1} ${y1} Q${gx} ${y1} ${gx} ${y1 + s * r} L${gx} ${gy - s * r} Q${gx} ${gy} ${gx + r} ${gy} L${tx - r} ${gy} Q${tx} ${gy} ${tx} ${gy + r} L${tx} ${ty}`;
+    }
+    const draw = cls === "done" && e.to.title === opts.justRead;
+    return [LAYER[cls], `<path class="edge ${cls}${draw ? " draw" : ""}"${draw ? ` pathLength="1"` : ""} d="${d}"/>`];
+  }).sort((a, z) => a[0] - z[0]).map(x => x[1]).join("");
+
+  const ordered = [...group].sort((a, b) => depth.get(a) - depth.get(b) || pos.get(a) - pos.get(b) || colOf.get(a) - colOf.get(b));
+  const readN = group.filter(b => status(b) === "read").length;
+  const reading = ordered.filter(b => status(b) === "reading"), nexts = ordered.filter(isNext);
+  const firstUnread = ordered.find(b => status(b) === "want");
+  const line = readN === group.length ? `<span class="complete">✓ Complete</span>`
+    : [reading.length && `Reading ${titles(reading)}`, nexts.length && `Up next ${titles(nexts, 2)}`].filter(Boolean).join(" · ") ||
+      (firstUnread ? `Start with ${titles([firstUnread])}` : "");
+
+  const el = document.createElement("div");
+  el.className = "trail";
+  el.innerHTML = `<div class="trail-head"><h3>${esc(trailName(group))}</h3><span class="count">${readN} of ${group.length} read</span>
+      <span class="segs" aria-hidden="true">${ordered.map(b => `<i class="${status(b)}"></i>`).join("")}</span>
+      <p class="trail-next">${line}</p></div>
+    <div class="canvas-wrap"><div class="canvas" style="width:${W}px;height:${H}px"><svg width="${W}" height="${H}" aria-hidden="true">${paths}</svg></div></div>`;
+  const canvas = el.querySelector(".canvas");
+  for (const b of group) {
+    const n = node(b, opts), { x, y } = xy(b);
+    n.style.left = x + "px"; n.style.top = y + "px";
+    canvas.appendChild(n);
+  }
+  return el;
+}
+
+function mapSection(opts) {
+  const sec = document.createElement("section");
+  sec.innerHTML = `<h2>Reading map</h2><p class="note">Every finished book lights up the path to the next one.</p>
+    <div class="map-bar">
+      <div class="legend"><span><i class="lg-read"></i>Read</span><span><i class="lg-reading"></i>Reading</span><span><i class="lg-next"></i>Up next</span><span><i class="lg-want"></i>Not started</span></div>
+      <div class="seg" role="group" aria-label="Map size">${["comfortable", "compact"].map(d =>
+        `<button type="button" data-density="${d}" aria-pressed="${d === density}">${d[0].toUpperCase() + d.slice(1)}</button>`).join("")}</div>
+    </div>
+    <div class="map-panel ${density}"></div>`;
+  const panel = sec.querySelector(".map-panel");
+  const availW = document.getElementById("sections").clientWidth - 36;
+  // Trails you're in the middle of come first; finished ones sink to the bottom.
+  const rank = g => g.some(b => status(b) === "reading") ? 0 : g.some(isNext) ? 1 : g.every(b => status(b) === "read") ? 3 : 2;
+  const trails = G.groups.filter(g => g.length > 1).sort((a, b) => rank(a) - rank(b));
+  const loose = G.groups.filter(g => g.length === 1).map(g => g[0]);
+  const shown = showAllTrails ? trails : trails.slice(0, MAX_TRAILS);
+  shown.forEach(g => panel.appendChild(trail(g, availW, opts)));
+  if (trails.length > shown.length || (showAllTrails && trails.length > MAX_TRAILS)) {
+    const more = trails.length - shown.length;
+    panel.insertAdjacentHTML("beforeend", `<button type="button" class="chip more-trails" data-trails>${more ? `Show ${more} more ${more === 1 ? "trail" : "trails"}` : "Show fewer trails"}</button>`);
+  }
+  if (loose.length) {
+    const el = document.createElement("div");
+    el.className = "trail";
+    el.innerHTML = `<div class="trail-head"><h3>Standalone</h3><span class="count">Connect these with <code>after</code> to grow the map</span></div><div class="loose-row"></div>`;
+    loose.forEach(b => el.querySelector(".loose-row").appendChild(node(b, opts)));
+    panel.appendChild(el);
+  }
+  return sec;
+}
+
+// ---------- Cards ----------
+function pagesHTML(b) {
+  const c = cur(b), page = c.page || 0, pct = pagePct(b);
+  return `<div class="pages">
+      <div class="pbar"><i style="width:${pct}%"></i></div>
+      <div class="prow">
+        <label>Page <input type="number" inputmode="numeric" min="0" max="${c.pages}" value="${page}" data-page="${esc(b.title)}"> of ${fmtNum(c.pages)}</label>
+        <span class="pmeta">${pct}% · ${fmtNum(c.pages - page)} left</span>
+        <span class="addps"><button type="button" class="addp" data-add="10" data-title="${esc(b.title)}">+10</button>
+        <button type="button" class="addp" data-add="25" data-title="${esc(b.title)}">+25</button></span>
+      </div>
+    </div>`;
+}
+
+function card(b, featured) {
+  const c = cur(b), st = c.status, next = isNext(b);
+  const edited = Object.keys(overrides[b.title] || {}).some(k => k !== "page");
   const el = document.createElement("article");
-  el.className = `card ${st}` + (edited ? " edited" : "");
+  el.className = `card ${st}` + (next ? " next" : "") + (featured ? " featured" : "") + (edited ? " edited" : "");
+  el.dataset.card = b.title;
   const facts = [];
-  if (b.started && st !== "want") facts.push(["Started", esc(fmtDate(b.started))]);
-  if (b.finished && st === "read") facts.push(["Finished", esc(fmtDate(b.finished))]);
+  if (c.started && st !== "want") facts.push(["Started", esc(fmtDate(c.started))]);
+  if (c.finished && st === "read") facts.push(["Finished", esc(fmtDate(c.finished))]);
+  if (b.pages && st !== "reading") facts.push(["Pages", fmtNum(b.pages)]);
   if (b.rating && st === "read") facts.push(["Rating", `<span class="stars" aria-label="${b.rating} out of 5">${stars(b.rating)}</span>`]);
+  if (b.after) facts.push(["Follows", b.after.map(t => `<em>${esc(t)}</em>`).join(", ")]);
   if (b.notes) facts.push(["Notes", esc(b.notes)]);
+  const done = st === "read", ready = st === "reading" && c.pages && (c.page || 0) >= c.pages;
+  const check = `<button type="button" class="check${featured ? " pill" : ""}${ready ? " ready" : ""}" data-title="${esc(b.title)}" aria-pressed="${done}"
+    title="${done ? "Read. Click to undo" : "Mark as read"}">${CHECK}<span class="lbl">${done ? "Read" : ready ? "Finished? Mark as read" : "Mark as read"}</span></button>`;
   el.innerHTML = `
     <div class="side">
-      <div class="cover">${st === "reading" ? `<span class="ribbon" aria-hidden="true"></span>` : ""}</div>
-      <label class="status"><select aria-label="Status of ${esc(b.title)}">${ORDER.map(s =>
+      <div class="cover">${st === "reading" ? `<span class="ribbon" aria-hidden="true"></span>` : ""}${done ? stampHTML(b) : ""}</div>
+      <label class="status"><select data-title="${esc(b.title)}" aria-label="Status of ${esc(b.title)}">${ORDER.map(s =>
         `<option value="${s}" ${s === st ? "selected" : ""}>${STATUS[s].tab}</option>`).join("")}</select></label>
       ${edited ? `<p class="edited-note">changed here</p>` : ""}
     </div>
     <div class="body">
-      <span class="genre" style="--g:${genreColor(b.genre)}"><span class="dot"></span>${esc(b.genre || "Book")}</span>
+      <div class="genre-row"><span class="genre" style="--g:${genreColor(b.genre)}"><span class="dot"></span>${esc(b.genre || "Book")}</span>${next ? `<span class="upnext">${nextLabel(b)}</span>` : ""}${b.suggested ? `<span class="suggest">Suggested</span>` : ""}</div>
       <h3>${esc(b.title)}</h3>
       <p class="byline">${esc(b.author)}${b.year ? `, ${b.year}` : ""}${b.series ? ` <span class="series">· ${esc(b.series[0])} #${b.series[1]}</span>` : ""}</p>
       ${b.blurb ? `<p class="blurb">${b.blurb}</p>` : ""}
+      ${st === "reading" && c.pages ? pagesHTML(b) : ""}
       ${facts.length ? `<dl class="facts">${facts.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>` : ""}
-    </div>`;
+      ${featured ? `<div class="actions">${check}</div>` : ""}
+      ${st === "want" ? `<p class="start-row"><button type="button" class="linkish start" data-title="${esc(b.title)}">Start reading</button></p>` : ""}
+    </div>
+    ${featured ? "" : check}`;
   el.querySelector(".cover").prepend(cover(b));
-  el.querySelector("select").addEventListener("change", e => {
-    if (e.target.value === b.status) delete overrides[b.title];
-    else overrides[b.title] = e.target.value;
-    save("bookshelf-status", JSON.stringify(overrides));
-    render();
-  });
   return el;
 }
 
-function render() {
+// ---------- Year view: goal, month by month, milestones ----------
+const finishedYear = b => (cur(b).finished || "").slice(0, 4);
+const readIn = y => BOOKS.filter(b => status(b) === "read" && finishedYear(b) === String(y));
+const goalFor = y => { const g = GOALS[y] || {}; const books = goalOverrides[y] ?? g.books; return books ? { books, from: g.from || `${y}-01-01` } : null; };
+
+function pace(y, done, goal) {
+  if (done >= goal.books) return { html: `<strong>Goal reached.</strong> ${done > goal.books ? `${done - goal.books} past it.` : "Anything more is a bonus."}`, frac: 1 };
+  if (y < THIS_YEAR) return { html: `Finished ${done} of ${goal.books}.`, frac: 1 };
+  if (y > THIS_YEAR) return { html: "Hasn't started yet.", frac: 0 };
+  const [fy, fm, fd] = goal.from.split("-").map(Number);
+  const start = new Date(fy, fm - 1, fd), end = new Date(y + 1, 0, 1), now = new Date();
+  const frac = Math.max(0, Math.min(1, (now - start) / (end - start))), diff = done - goal.books * frac;
+  const left = goal.books - done, daysLeft = Math.max(1, Math.ceil((end - now) / 864e5));
+  const where = diff >= 1 ? `<strong>${Math.floor(diff)} ahead of pace.</strong>` : diff <= -1 ? `<strong class="behind">${Math.ceil(-diff)} behind pace.</strong>` : `<strong>On pace.</strong>`;
+  return { html: `${where} ${left} to go: about one book every ${Math.max(1, Math.round(daysLeft / left))} days.`, frac };
+}
+
+function ringSVG(size, stroke, frac, paceFrac) {
+  const r = size / 2 - stroke / 2 - 1, c = 2 * Math.PI * r, mid = size / 2;
+  let tick = "";
+  if (paceFrac > 0 && paceFrac < 1) {
+    const a = paceFrac * 2 * Math.PI, x = t => mid + t * Math.cos(a), y = t => mid + t * Math.sin(a);
+    tick = `<line class="ring-pace" x1="${x(r - stroke)}" y1="${y(r - stroke)}" x2="${x(r + stroke)}" y2="${y(r + stroke)}"/>`;
+  }
+  return `<svg viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle class="ring-bg" cx="${mid}" cy="${mid}" r="${r}"/>
+    <circle class="ring-fg" cx="${mid}" cy="${mid}" r="${r}" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - Math.min(1, frac))}"${frac ? "" : ` stroke-opacity="0"`}/>${tick}</svg>`;
+}
+
+// Walk finished books in date order; a milestone is earned by the book that crosses its line.
+function milestoneState() {
+  const read = BOOKS.filter(b => status(b) === "read").sort((a, b) => (cur(a).finished || "").localeCompare(cur(b).finished || ""));
+  const acc = { books: 0, pages: 0, genres: new Set(), series: 0, big: 0 }, seriesRead = new Map(), earned = new Map();
+  const value = of => of === "genres" ? acc.genres.size : acc[of];
+  for (const b of read) {
+    acc.books++; acc.pages += b.pages || 0;
+    if (b.genre) acc.genres.add(b.genre);
+    if ((b.pages || 0) >= 800) acc.big++;
+    if (b.series && G.seriesLists.get(b.series[0]).length > 1) {
+      const n = (seriesRead.get(b.series[0]) || 0) + 1;
+      seriesRead.set(b.series[0], n);
+      if (n === G.seriesLists.get(b.series[0]).length) acc.series++;
+    }
+    for (const m of MILESTONES) if (!earned.has(m.key) && value(m.of) >= m.need) earned.set(m.key, cur(b).finished || "");
+  }
+  return MILESTONES.map(m => ({ ...m, value: value(m.of), earned: earned.has(m.key), date: earned.get(m.key) }));
+}
+const earnedKeys = () => new Set(milestoneState().filter(m => m.earned).map(m => m.key));
+
+function yearView() {
+  const frag = document.createDocumentFragment();
+  const years = [...new Set([THIS_YEAR, ...BOOKS.filter(b => status(b) === "read" && cur(b).finished).map(b => +finishedYear(b))])].sort();
+  if (!years.includes(yearSel)) yearSel = THIS_YEAR;
+  const done = readIn(yearSel), goal = goalFor(yearSel);
+  const reading = yearSel === THIS_YEAR ? BOOKS.filter(b => status(b) === "reading") : [];
+  const pagesTurned = done.reduce((s, b) => s + (b.pages || 0), 0) + reading.reduce((s, b) => s + (cur(b).page || 0), 0);
+  const longest = [...done].sort((a, b) => (b.pages || 0) - (a.pages || 0))[0];
+  const p = goal ? pace(yearSel, done.length, goal) : null;
+
+  const top = document.createElement("section");
+  top.innerHTML = `<div class="year-head"><h2>${yearSel} in books</h2>${years.length > 1 ? `<div class="year-nav">${years.map(y =>
+      `<button type="button" class="chip" data-year="${y}" aria-pressed="${y === yearSel}">${y}</button>`).join("")}</div>` : ""}</div>
+    <div class="goal-panel">
+      <div class="ring">${ringSVG(160, 12, goal ? done.length / goal.books : 0, p ? p.frac : 0)}
+        <div class="ring-center"><b>${done.length}</b><small>${goal ? `of ${goal.books} books` : done.length === 1 ? "book" : "books"}</small></div></div>
+      <div class="goal-text">
+        <h3>${goal ? `${yearSel} reading goal` : `Books finished in ${yearSel}`}</h3>
+        <p class="pace-line">${p ? p.html : "No goal set for this year."}</p>
+        <label class="goal-edit">Goal <input type="number" min="1" max="500" value="${goal ? goal.books : ""}" placeholder="–" data-goal="${yearSel}"> books this year</label>
+        <dl class="year-stats">
+          <div><dt>Pages turned</dt><dd>${fmtNum(pagesTurned)}</dd></div>
+          <div><dt>Reading now</dt><dd>${reading.length}</dd></div>
+          ${longest ? `<div><dt>Longest</dt><dd><em>${esc(longest.title)}</em></dd></div>` : ""}
+        </dl>
+      </div>
+    </div>`;
+  frag.appendChild(top);
+
+  // Month by month: finished books stacked in the month they were finished; this month also shows what's open.
+  const months = document.createElement("section");
+  const nowMonth = yearSel === THIS_YEAR ? new Date().getMonth() : yearSel < THIS_YEAR ? 12 : -1;
+  const undated = BOOKS.filter(b => status(b) === "read" && !cur(b).finished).length;
+  months.innerHTML = `<h2>Month by month</h2><p class="note">Each finished book lands in the month you closed it.${undated ? ` ${undated} read ${undated === 1 ? "book has" : "books have"} no finish date.` : ""}</p><div class="months"></div>`;
+  MONTHS.forEach((name, i) => {
+    const inMonth = done.filter(b => +cur(b).finished.slice(5, 7) === i + 1);
+    const m = document.createElement("div");
+    m.className = "month" + (i === nowMonth ? " now" : i > nowMonth ? " future" : "");
+    m.innerHTML = `<span class="mname">${name}</span><div class="mstack"></div>${inMonth.length ? `<span class="mcount">${inMonth.length}</span>` : ""}`;
+    const stack = m.querySelector(".mstack");
+    const add = (b, into, ghost) => {
+      const btn = Object.assign(document.createElement("button"), { type: "button", className: "mbook" + (ghost ? " ghost" : ""), title: `${b.title}${ghost ? " (reading)" : ""}` });
+      btn.dataset.title = b.title;
+      const cv = document.createElement("span"); cv.className = "cover"; cv.appendChild(cover(b));
+      btn.appendChild(cv); into.appendChild(btn);
+    };
+    inMonth.forEach(b => add(b, stack, false));
+    if (i === nowMonth) {
+      if (!inMonth.length) stack.innerHTML = `<span class="mslot" title="Finish a book this month">+</span>`;
+      if (reading.length) {
+        const row = Object.assign(document.createElement("div"), { className: "mreading" });
+        row.innerHTML = `<small>Reading</small>`;
+        reading.forEach(b => add(b, row, true));
+        m.appendChild(row);
+      }
+    }
+    months.querySelector(".months").appendChild(m);
+  });
+  frag.appendChild(months);
+
+  // Milestones, with the closest unearned one flagged.
+  const ms = milestoneState();
+  const target = ms.filter(m => !m.earned).sort((a, b) => b.value / b.need - a.value / a.need)[0];
+  const earnedN = ms.filter(m => m.earned).length;
+  const sec = document.createElement("section");
+  sec.innerHTML = `<h2>Milestones <span>${earnedN} of ${ms.length}</span></h2>
+    <p class="note">${target ? `Next: ${esc(target.title.toLowerCase())}, ${fmtNum(target.need - target.value)} ${unit(target.of, target.need - target.value)} to go.` : "Every milestone earned."}</p>
+    <div class="milestones">${ms.map(m => `<div class="ms ${m.earned ? "earned" : "locked"}${m === target ? " target" : ""}">
+        <span class="medal">${m.badge}</span>
+        <div>${m === target ? `<span class="flag">Next up</span>` : ""}<b>${esc(m.title)}</b>
+          ${m.earned ? `<small>${m.date ? `Earned ${esc(fmtDate(m.date))}` : "Earned"}</small>`
+            : `<span class="mbar"><i style="width:${Math.min(100, m.value / m.need * 100)}%"></i></span><small>${fmtNum(Math.min(m.value, m.need))} of ${fmtNum(m.need)} ${unit(m.of, m.need)}</small>`}
+        </div></div>`).join("")}</div>`;
+  frag.appendChild(sec);
+  return frag;
+}
+
+function goalMini() {
+  const goal = goalFor(THIS_YEAR), el = document.getElementById("goal-mini");
+  el.hidden = !goal;
+  if (!goal) return;
+  const done = readIn(THIS_YEAR).length;
+  el.setAttribute("aria-label", `${THIS_YEAR} goal: ${done} of ${goal.books} books. Open the year view.`);
+  el.innerHTML = `<span class="ring">${ringSVG(52, 5, done / goal.books, 0)}<b>${done}/${goal.books}</b></span><small>${THIS_YEAR} goal</small>`;
+}
+
+// ---------- Render ----------
+function render(opts = {}) {
+  G = buildGraph();
+  const needle = q.trim().toLowerCase();
+  opts.needle = needle;
   const count = s => BOOKS.filter(b => status(b) === s).length;
-  document.getElementById("tabs").innerHTML = [["all", "All", BOOKS.length], ...ORDER.map(s => [s, STATUS[s].tab, count(s)])]
+  document.getElementById("tabs").innerHTML = [["all", "All", BOOKS.length], ...ORDER.map(s => [s, STATUS[s].tab, count(s)]), ["year", "Year", readIn(THIS_YEAR).length]]
     .map(([k, label, n]) => `<button role="tab" data-v="${k}" aria-selected="${k === view}">${label}<sup>${n}</sup></button>`).join("");
   const genres = [...new Set(BOOKS.map(b => b.genre).filter(Boolean))].sort();
   document.getElementById("genres").innerHTML = ["all", ...genres].map(g =>
     `<button class="chip" data-g="${esc(g)}" aria-pressed="${g === genre}">${g === "all" ? "All genres" : `<span class="dot" style="--g:${genreColor(g)}"></span>${esc(g)}`}</button>`).join("");
+  document.getElementById("controls").hidden = view === "year";
 
   const wrap = document.getElementById("sections");
   wrap.innerHTML = "";
-  const needle = q.trim().toLowerCase();
-  for (const key of view === "all" ? ORDER : [view]) {
-    const list = BOOKS.filter(b => status(b) === key && (genre === "all" || b.genre === genre) &&
-      (!needle || [b.title, b.author, b.series && b.series[0], b.genre].some(x => x && x.toLowerCase().includes(needle))));
-    if (key === "read") list.sort((a, b) => (b.finished || "").localeCompare(a.finished || ""));
-    const sec = document.createElement("section");
-    sec.innerHTML = `<h2>${STATUS[key].title} <span>${list.length}</span></h2><p class="note">${STATUS[key].note}</p>`;
-    const grid = document.createElement("div");
-    grid.className = key === "reading" ? "grid feature" : "grid";
-    list.forEach(b => grid.appendChild(card(b)));
-    sec.appendChild(list.length ? grid : Object.assign(document.createElement("p"), { className: "empty", textContent: "Nothing here yet." }));
-    wrap.appendChild(sec);
+  if (view === "year") wrap.appendChild(yearView());
+  else {
+    if (view === "all" && BOOKS.length) wrap.appendChild(mapSection(opts));
+    for (const key of view === "all" ? ORDER : [view]) {
+      const list = BOOKS.filter(b => status(b) === key && (genre === "all" || b.genre === genre) && matches(b, needle));
+      if (key === "read") list.sort((a, b) => (cur(b).finished || "").localeCompare(cur(a).finished || ""));
+      const sec = document.createElement("section");
+      sec.innerHTML = `<h2>${STATUS[key].title} <span>${list.length}</span></h2><p class="note">${STATUS[key].note}</p>`;
+      const grid = document.createElement("div");
+      grid.className = key === "reading" ? "grid feature" + (list.length > 1 ? " multi" : "") : "grid";
+      list.forEach(b => grid.appendChild(card(b, key === "reading")));
+      if (list.length) sec.appendChild(grid);
+      else {
+        const p = Object.assign(document.createElement("p"), { className: "empty", textContent: "Nothing here yet." });
+        const next = key === "reading" && (BOOKS.find(b => isNext(b) && !b.suggested) || BOOKS.find(isNext));
+        if (next) p.innerHTML = `Nothing on the nightstand. <button type="button" class="linkish start" data-title="${esc(next.title)}">Start <em>${esc(next.title)}</em></button>`;
+        sec.appendChild(p);
+      }
+      wrap.appendChild(sec);
+    }
+    // Scroll wide trails so the book you're on is in view.
+    wrap.querySelectorAll(".canvas-wrap").forEach(w => {
+      const f = w.querySelector(".node.reading, .node.next");
+      if (f && w.scrollWidth > w.clientWidth) w.scrollLeft = f.offsetLeft - w.clientWidth / 3;
+    });
   }
+
   const read = count("read"), pct = BOOKS.length ? Math.round(read / BOOKS.length * 100) : 0;
   document.getElementById("n-read").textContent = read;
   document.getElementById("n-reading").textContent = count("reading");
   document.getElementById("n-want").textContent = count("want");
   document.getElementById("bar").style.width = pct + "%";
   document.getElementById("progress-label").textContent = `${read} of ${BOOKS.length} ${BOOKS.length === 1 ? "book" : "books"} on the shelf read · ${pct}%`;
+  goalMini();
+  const changed = Object.keys(overrides).length + Object.keys(goalOverrides).length;
+  document.getElementById("local").hidden = !changed;
+  document.getElementById("local-n").textContent = `${changed} ${changed === 1 ? "change is" : "changes are"} saved in this browser only.`;
+  lastW = wrap.clientWidth;
+}
+
+// ---------- Ticking books off ----------
+function burst(x, y, n = 28, power = 1) {
+  if (reduced) return;
+  const css = getComputedStyle(document.documentElement);
+  const colors = ["--green", "--accent", "--gold", "--ink-3"].map(v => css.getPropertyValue(v).trim());
+  for (let i = 0; i < n; i++) {
+    const p = document.createElement("i"), size = 5 + Math.random() * 5;
+    p.className = "particle";
+    Object.assign(p.style, {
+      left: x + "px", top: y + "px", width: size + "px", height: (Math.random() < .5 ? size : size * .45) + "px",
+      background: colors[i % colors.length], borderRadius: Math.random() < .4 ? "50%" : "1px",
+    });
+    document.body.appendChild(p);
+    const a = -Math.PI / 2 + (Math.random() - .5) * Math.PI * 1.3, v = (50 + Math.random() * 90) * power;
+    const dx = Math.cos(a) * v, dy = Math.sin(a) * v, r = (Math.random() - .5) * 720;
+    p.animate([
+      { transform: "translate(-50%, -50%)", opacity: 1 },
+      { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) rotate(${r / 2}deg)`, opacity: 1, offset: .55 },
+      { transform: `translate(calc(-50% + ${dx * 1.2}px), calc(-50% + ${dy + 80 * power}px)) rotate(${r}deg)`, opacity: 0 },
+    ], { duration: 900 + Math.random() * 500, easing: "cubic-bezier(.2, .7, .4, 1)" }).onfinish = () => p.remove();
+  }
+}
+
+let toastTimer;
+function toast(html, undo, ms = 6500) {
+  const t = document.getElementById("toast");
+  t.innerHTML = `<span>${html}</span>${undo ? `<button type="button">Undo</button>` : ""}`;
+  t.classList.add("show");
+  if (undo) t.querySelector("button").onclick = () => {
+    overrides = JSON.parse(undo); saveOverrides(); render(); t.classList.remove("show");
+  };
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), ms);
+}
+
+// After a book is marked read: counters, series progress, new milestones, the yearly goal.
+function celebrate(b, undo, before) {
+  const n = document.getElementById("n-read");
+  n.classList.remove("bump"); void n.offsetWidth; n.classList.add("bump");
+  const group = G.groups.find(g => g.includes(b)), name = trailName(group);
+  const readN = group.filter(x => status(x) === "read").length, next = group.find(x => isNext(x) && !x.suggested) || group.find(isNext);
+  const fresh = milestoneState().filter(m => m.earned && !before.keys.has(m.key));
+  const goal = goalFor(THIS_YEAR), yearN = readIn(THIS_YEAR).length;
+  const goalHit = goal && yearN >= goal.books && before.yearN < goal.books;
+  const parts = [];
+  if (group.length > 1 && readN === group.length) parts.push(`Trail complete: all ${group.length} books of <em>${esc(name)}</em> read.`);
+  else {
+    parts.push(`Finished <em>${esc(b.title)}</em>.` + (group.length > 1 ? ` ${readN} of ${group.length} in ${esc(name)}.` : ""));
+    if (next) parts.push(`Up next: <em>${esc(next.title)}</em>.`);
+  }
+  if (goalHit) parts.push(`<span class="medal-tag">${THIS_YEAR} goal reached!</span>`);
+  if (fresh.length) parts.push(`<span class="medal-tag">Milestone:</span> ${fresh.map(m => esc(m.title)).join(", ")}.`);
+  if (goalHit || fresh.length || (group.length > 1 && readN === group.length)) burst(innerWidth / 2, innerHeight / 3, 90, 2.4);
+  toast(parts.join(" "), undo, fresh.length || goalHit ? 9000 : 6500);
+}
+const snapshot = () => ({ keys: earnedKeys(), yearN: readIn(THIS_YEAR).length });
+
+function toggleRead(b, btn) {
+  const undo = JSON.stringify(overrides);
+  if (status(b) === "read") {
+    if (b.status === "read") setStatus(b, "want");
+    else patch(b, { status: undefined, finished: undefined });
+    render();
+    toast(`<em>${esc(b.title)}</em> is back to ${STATUS[status(b)].tab.toLowerCase()}.`, undo);
+    return;
+  }
+  G = buildGraph();
+  const before = snapshot();
+  setStatus(b, "read");
+  // Celebrate in place first; the card moves to the Read section when the page re-renders.
+  btn.disabled = true;
+  btn.setAttribute("aria-pressed", "true");
+  btn.classList.remove("ready");
+  btn.classList.add("go");
+  btn.querySelector(".lbl").textContent = "Read";
+  const card = btn.closest(".card");
+  card.classList.add("checking");
+  card.querySelector(".cover").insertAdjacentHTML("beforeend", stampHTML(b, true));
+  const r = btn.getBoundingClientRect();
+  burst(r.left + r.width / 2, r.top + r.height / 2);
+  setTimeout(() => { render({ justRead: b.title }); celebrate(b, undo, before); }, reduced ? 0 : 1100);
+}
+
+function startReading(b) {
+  const undo = JSON.stringify(overrides);
+  setStatus(b, "reading");
+  render();
+  const n = BOOKS.filter(x => status(x) === "reading").length;
+  toast(`Started <em>${esc(b.title)}</em>.${n > 1 ? ` You're reading ${n} books at once.` : " Enjoy."}`, undo);
+}
+
+// Map node or month cover → its card in the All view.
+function focusCard(title) {
+  const find = () => document.querySelector(`.card[data-card="${CSS.escape(title)}"]`);
+  if (!find()) { view = "all"; genre = "all"; q = ""; document.getElementById("q").value = ""; render(); }
+  const el = find();
+  if (!el) return;
+  el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+  el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
 }
 
 document.getElementById("tabs").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   view = b.dataset.v; save("bookshelf-view", view); render();
 });
+document.getElementById("goal-mini").addEventListener("click", () => {
+  view = "year"; yearSel = THIS_YEAR; save("bookshelf-view", view); render();
+});
 document.getElementById("genres").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   genre = b.dataset.g; render();
 });
 document.getElementById("q").addEventListener("input", e => { q = e.target.value; render(); });
+document.getElementById("sections").addEventListener("click", e => {
+  const t = e.target;
+  const check = t.closest(".check");
+  if (check) return toggleRead(byTitle(check.dataset.title), check);
+  const start = t.closest(".start");
+  if (start) return startReading(byTitle(start.dataset.title));
+  const add = t.closest(".addp");
+  if (add) { const b = byTitle(add.dataset.title); setPage(b, (cur(b).page || 0) + +add.dataset.add); return render(); }
+  const d = t.closest("[data-density]");
+  if (d) { density = d.dataset.density; save("bookshelf-density", density); return render(); }
+  if (t.closest("[data-trails]")) { showAllTrails = !showAllTrails; return render(); }
+  const y = t.closest("[data-year]");
+  if (y) { yearSel = +y.dataset.year; return render(); }
+  const n = t.closest(".node, .mbook");
+  if (n) focusCard(n.dataset.title);
+});
+document.getElementById("sections").addEventListener("change", e => {
+  const t = e.target;
+  if (t.matches("[data-page]")) { setPage(byTitle(t.dataset.page), +t.value); return render(); }
+  if (t.matches("[data-goal]")) {
+    const y = t.dataset.goal, n = Math.round(+t.value);
+    if (n > 0) goalOverrides[y] = n; else delete goalOverrides[y];
+    if (GOALS[y] && goalOverrides[y] === GOALS[y].books) delete goalOverrides[y];
+    save("bookshelf-goals", JSON.stringify(goalOverrides));
+    return render();
+  }
+  if (!t.matches("select")) return;
+  const b = byTitle(t.dataset.title), undo = JSON.stringify(overrides), wasRead = status(b) === "read";
+  G = buildGraph();
+  const before = snapshot();
+  setStatus(b, t.value);
+  const nowRead = status(b) === "read" && !wasRead;
+  render(nowRead ? { justRead: b.title } : {});
+  if (nowRead) celebrate(b, undo, before);
+});
+// Live page bar while typing; the full re-render waits for the change event.
+document.getElementById("sections").addEventListener("input", e => {
+  const t = e.target;
+  if (!t.matches("[data-page]")) return;
+  const c = cur(byTitle(t.dataset.page)), page = Math.max(0, Math.min(c.pages, +t.value || 0)), pct = Math.round(page / c.pages * 100);
+  const box = t.closest(".pages");
+  box.querySelector(".pbar i").style.width = pct + "%";
+  box.querySelector(".pmeta").textContent = `${pct}% · ${fmtNum(c.pages - page)} left`;
+});
+document.getElementById("copy").addEventListener("click", async () => {
+  const out = Object.keys(goalOverrides).length ? { books: overrides, goals: goalOverrides } : overrides;
+  try {
+    await navigator.clipboard.writeText(JSON.stringify(out, null, 2));
+    toast("Copied. Paste it to Claude to make the changes permanent.");
+  } catch (e) { toast("Couldn't copy from this page."); }
+});
+let lastW = 0, resizeTimer;
+addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => { if (view === "all" && document.getElementById("sections").clientWidth !== lastW) render(); }, 150);
+});
 
 render();
 </script>

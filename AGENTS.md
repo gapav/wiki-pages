@@ -78,6 +78,24 @@ To add a book, add an entry to the `BOOKS` array near the top of the script. The
 documents the fields. `status` is `"reading"`, `"want"` or `"read"`. Covers use
 `https://covers.openlibrary.org/b/id/<id>-L.jpg`. Genre colours are in `GENRES`.
 
+Beyond the basics, a book can have `pages` (drives page progress and the page milestones),
+`after: ["Other title"]` (a link on the reading map) and `suggested: true` (a recommendation, labelled
+as such). Sequels have no blurbs on purpose, to avoid spoilers.
+
+- **Reading map** (top of the All view): series books connect in order automatically, and `after`
+  adds branches and cross-series links. Connected books form one trail; unconnected ones go under
+  "Standalone". The layout is layered left to right. Side branches that lead nowhere yet pack
+  sideways into the row below, and lines between rows run along the gutter above the target row,
+  so they never cross a cover. Active trails sort first; past `MAX_TRAILS` the rest fold away.
+  The Comfortable/Compact sizes are in `GEOM`.
+- **Year view**: the per-year goal lives in `GOALS` (`from` is when tracking started and sets the
+  pace). The view shows a month-by-month shelf and `MILESTONES`, which are re-derived from finish
+  dates rather than stored.
+- **In-page changes** (status, start and finish dates, current page, goal) are saved only to
+  `localStorage` (`bookshelf-status`, `bookshelf-goals`). The footer's "Copy changes" button
+  exports them as JSON keyed by title (or as `{ books, goals }` when a goal was changed) so they can be
+  written back into `BOOKS` and `GOALS`.
+
 ## Adding a page
 
 - Hand-written: one `<name>.html` at the repo root.
