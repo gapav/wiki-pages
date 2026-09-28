@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Performance Lab · S&amp;C Wiki</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,700;1,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d12;
+    --surface: #10151c;
+    --surface-2: #161c25;
+    --surface-3: #1d2530;
+    --line: #232c38;
+    --line-2: #2e3947;
+    --text: #e6ebf1;
+    --muted: #8793a3;
+    --dim: #5d6878;
+    --volt: #d4ff3a;
+    --volt-ink: #10140a;
+    --cyan: #2fe0d0;
+    --blue: #4d8dff;
+    --orange: #ff7a1f;
+    --magenta: #ff4f8b;
+    --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+    --sans: "Inter", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); scroll-padding-top: 84px; }
+  body {
+    margin: 0; color: var(--text); font: 16px/1.65 var(--sans); min-height: 100vh; overflow-x: hidden;
+    background:
+      linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px) 0 0 / 100% 48px,
+      linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px) 0 0 / 48px 100%,
+      radial-gradient(ellipse 60% 40% at 85% -10%, rgba(212,255,58,.08), transparent 70%),
+      radial-gradient(ellipse 50% 40% at 0% 0%, rgba(47,224,208,.06), transparent 70%),
+      var(--bg);
+    background-attachment: fixed;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--volt); outline-offset: 2px; }
+
+  /* ── Category colours ── */
+  .c-athlete { --cat: var(--volt); } .c-concepts { --cat: var(--cyan); } .c-sources { --cat: var(--blue); }
+  .c-entities { --cat: var(--orange); } .c-questions { --cat: var(--magenta); } .c-core { --cat: #c7d0dc; }
+
+  /* ── Top bar ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 16px;
+    padding: 12px 20px; background: rgba(10,13,18,.86); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; flex-shrink: 0; }
+  .brand .mark {
+    width: 38px; height: 38px; display: grid; place-items: center; background: var(--volt); color: var(--volt-ink);
+    clip-path: polygon(25% 0, 100% 0, 75% 100%, 0 100%);
+  }
+  .brand .mark svg { width: 18px; height: 18px; }
+  .brand .word { font: italic 800 26px/0.9 var(--display); letter-spacing: .02em; text-transform: uppercase; }
+  .brand .word small { display: block; font: 600 11px/1.3 var(--sans); font-style: normal; letter-spacing: .22em; color: var(--muted); margin-top: 3px; }
+  .search { position: relative; flex: 1; max-width: 520px; margin-left: auto; }
+  .search input {
+    width: 100%; font: 15px var(--sans); color: var(--text); background: var(--surface-2);
+    border: 1px solid var(--line-2); border-radius: 8px; padding: 10px 14px 10px 38px;
+  }
+  .search input::placeholder { color: var(--dim); }
+  .search input:focus { outline: none; border-color: var(--volt); box-shadow: 0 0 0 3px rgba(212,255,58,.15); }
+  .search svg { position: absolute; left: 12px; top: 50%; translate: 0 -50%; width: 16px; height: 16px; color: var(--muted); }
+  .search kbd { position: absolute; right: 10px; top: 50%; translate: 0 -50%; font: 500 11px var(--mono); color: var(--muted); border: 1px solid var(--line-2); border-radius: 4px; padding: 1px 6px; }
+  .menu-toggle { display: none; }
+
+  .shell { display: grid; grid-template-columns: 290px minmax(0, 1fr); max-width: 1480px; margin: 0 auto; }
+
+  /* ── Sidebar ── */
+  nav.side {
+    position: sticky; top: 63px; height: calc(100vh - 63px); overflow: auto; padding: 18px 14px 40px;
+    border-right: 1px solid var(--line); scrollbar-width: thin; scrollbar-color: var(--line-2) transparent;
+  }
+  .side .home {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 14px; border-radius: 8px;
+    text-decoration: none; font: 700 15px/1 var(--display); letter-spacing: .12em; text-transform: uppercase;
+    background: var(--surface-2); border: 1px solid var(--line-2);
+  }
+  .side .home.on { background: var(--volt); color: var(--volt-ink); border-color: var(--volt); }
+  .navsec { margin-bottom: 6px; }
+  .navsec > summary {
+    list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px;
+    font: 700 15px/1 var(--display); letter-spacing: .14em; text-transform: uppercase; color: #cfd6df;
+  }
+  .navsec > summary::-webkit-details-marker { display: none; }
+  .navsec > summary::before { content: ""; width: 4px; height: 16px; border-radius: 2px; background: var(--cat); }
+  .navsec > summary .count { margin-left: auto; font: 500 11px var(--mono); color: var(--muted); background: var(--surface-2); border-radius: 4px; padding: 2px 6px; }
+  .navsec > summary .chev { width: 10px; transition: rotate .2s; color: var(--dim); }
+  .navsec[open] > summary .chev { rotate: 90deg; }
+  .navsec > summary:hover { background: var(--surface-2); }
+  .navlist { list-style: none; margin: 2px 0 10px; padding: 0 0 0 14px; border-left: 1px solid var(--line); margin-left: 11px; }
+  .navlist a {
+    display: block; padding: 5px 10px; margin-left: -1px; border-left: 2px solid transparent; text-decoration: none;
+    font-size: 13.5px; line-height: 1.35; color: #b7c1cd;
+  }
+  .navlist a:hover { color: #fff; background: rgba(255,255,255,.03); }
+  .navlist a.on { color: #fff; border-left-color: var(--cat); background: linear-gradient(90deg, color-mix(in srgb, var(--cat) 14%, transparent), transparent); font-weight: 600; }
+  .navlist .all { font: 600 11px var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--cat); }
+
+  /* ── Main + TOC ── */
+  .main { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 40px; padding: 34px 40px 80px; }
+  .main.wide { grid-template-columns: minmax(0, 1fr); }
+  .toc { position: sticky; top: 97px; align-self: start; max-height: calc(100vh - 120px); overflow: auto; }
+  .toc h5 { margin: 0 0 10px; font: 700 13px/1 var(--display); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  .toc a { display: block; padding: 5px 0 5px 12px; border-left: 2px solid var(--line); font-size: 13px; line-height: 1.35; color: var(--muted); text-decoration: none; }
+  .toc a:hover { color: var(--text); }
+  .toc a.on { color: var(--volt); border-left-color: var(--volt); }
+
+  /* ── Page header ── */
+  .pagehead { margin-bottom: 28px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+  .eyebrow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; font: 700 12px/1 var(--display); letter-spacing: .16em; text-transform: uppercase;
+    color: var(--cat); border: 1px solid color-mix(in srgb, var(--cat) 45%, transparent); background: color-mix(in srgb, var(--cat) 10%, transparent);
+    padding: 5px 9px; border-radius: 4px; text-decoration: none;
+  }
+  .chip::before { content: ""; width: 6px; height: 6px; background: var(--cat); transform: skewX(-15deg); }
+  .meta { font: 500 12px var(--mono); color: var(--muted); display: flex; gap: 14px; flex-wrap: wrap; }
+  .pagehead h1 {
+    margin: 0; font: italic 800 clamp(36px, 5vw, 58px)/0.95 var(--display); letter-spacing: .005em; text-transform: uppercase;
+  }
+  .lede { margin: 14px 0 0; font-size: 18px; line-height: 1.55; color: #b9c3cf; max-width: 72ch; }
+
+  /* ── Article body ── */
+  article { overflow-wrap: anywhere; max-width: 820px; counter-reset: h2; }
+  article > h1:first-child { display: none; } /* shown in the page header instead */
+  article h2 {
+    counter-increment: h2; display: flex; align-items: baseline; gap: 14px;
+    margin: 44px 0 14px; font: 800 30px/1.05 var(--display); text-transform: uppercase; letter-spacing: .01em;
+  }
+  article h2::before { content: counter(h2, decimal-leading-zero); font: 700 14px var(--mono); color: var(--volt); translate: 0 -4px; }
+  article h3 { margin: 30px 0 10px; font: 700 21px/1.2 var(--display); letter-spacing: .06em; text-transform: uppercase; color: #fff; }
+  article h3::before { content: "/ "; color: var(--cat, var(--volt)); }
+  article h4 { margin: 22px 0 8px; font: 600 16px/1.3 var(--sans); color: var(--cyan); }
+  article p { margin: 0 0 16px; color: #d5dce5; }
+  article ul, article ol { margin: 0 0 18px; padding-left: 22px; color: #d5dce5; }
+  article li { margin: 6px 0; padding-left: 4px; }
+  article ul > li::marker { content: "▸ "; color: var(--volt); font-size: .85em; }
+  article ol > li::marker { font: 600 .9em var(--mono); color: var(--volt); }
+  article strong { color: #fff; font-weight: 650; }
+  article a { color: var(--cyan); text-decoration: none; border-bottom: 1px solid rgba(47,224,208,.35); }
+  article a:hover { color: #fff; border-bottom-color: var(--cyan); }
+  article a.missing { color: var(--muted); border-bottom: 1px dashed var(--dim); cursor: help; }
+  article a.ext::after { content: " ↗"; font-size: .8em; }
+  article hr { border: 0; height: 1px; background: var(--line-2); margin: 34px 0; }
+  article blockquote {
+    margin: 0 0 18px; padding: 14px 18px; border-radius: 8px; background: var(--surface-2);
+    border: 1px solid var(--line-2); border-left: 3px solid var(--volt);
+  }
+  article blockquote p:last-child { margin-bottom: 0; }
+  article code { font: 500 .86em var(--mono); background: var(--surface-3); border: 1px solid var(--line-2); padding: 1px 6px; border-radius: 4px; color: #e9ff9a; }
+  article pre { background: var(--surface); border: 1px solid var(--line-2); border-radius: 8px; padding: 16px; overflow-x: auto; }
+  article pre code { background: none; border: 0; padding: 0; color: #cfd8e3; font-size: 13px; line-height: 1.45; display: block; }
+  .tablewrap { overflow-x: auto; margin: 0 0 22px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--surface); }
+  article table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  article th {
+    text-align: left; font: 700 12px/1.2 var(--display); letter-spacing: .16em; text-transform: uppercase; color: var(--muted);
+    background: var(--surface-2); padding: 11px 14px; border-bottom: 1px solid var(--line-2); white-space: nowrap;
+  }
+  article td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  article tbody tr:last-child td { border-bottom: 0; }
+  article tbody tr:hover td { background: rgba(212,255,58,.035); }
+  /* Metrics (5.077 s, 8.29 m/s, 185 kg, 90%) in tabular mono */
+  .num { font: 500 .92em var(--mono); color: #eaff9c; white-space: nowrap; }
+  th .num { color: inherit; }
+
+  .backlinks { margin-top: 44px; padding: 18px 20px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--surface); }
+  .backlinks h5 { margin: 0 0 12px; font: 700 13px/1 var(--display); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  .backlinks div { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px; font-size: 13px; text-decoration: none; color: #cfd6df;
+    background: var(--surface-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 5px 12px;
+  }
+  .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--cat); }
+  .pill:hover { border-color: var(--cat); color: #fff; }
+
+  .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 28px; }
+  .pager a {
+    display: block; text-decoration: none; padding: 14px 18px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--surface);
+  }
+  .pager a:hover { border-color: var(--volt); }
+  .pager small { display: block; font: 700 11px var(--display); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+  .pager span { font: 700 18px/1.2 var(--display); text-transform: uppercase; }
+  .pager .next { text-align: right; grid-column: 2; }
+
+  /* ── Dashboard ── */
+  .hero { margin-bottom: 34px; }
+  .hero .kicker { font: 700 13px var(--display); letter-spacing: .3em; text-transform: uppercase; color: var(--volt); }
+  .hero h1 { margin: 8px 0 12px; font: italic 800 clamp(44px, 7vw, 86px)/.9 var(--display); text-transform: uppercase; }
+  .hero h1 em { color: var(--volt); font-style: inherit; }
+  .hero p { margin: 0; max-width: 66ch; color: #b9c3cf; font-size: 17px; }
+  .blockhead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 36px 0 14px; }
+  .blockhead h2 { margin: 0; font: 800 24px/1 var(--display); letter-spacing: .06em; text-transform: uppercase; }
+  .blockhead a { font: 600 12px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--volt); text-decoration: none; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .kpi {
+    position: relative; overflow: hidden; padding: 16px 18px 14px; border-radius: 10px; background: var(--surface);
+    border: 1px solid var(--line-2);
+  }
+  .kpi::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--volt); }
+  .kpi .label { font: 700 12px var(--display); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .kpi .value { margin-top: 6px; font: 700 34px/1 var(--display); letter-spacing: .01em; }
+  .kpi .value small { font: 600 16px var(--display); color: var(--muted); margin-left: 3px; }
+  .kpi .date { margin-top: 8px; font: 500 11px var(--mono); color: var(--dim); }
+  .kpi.pending { background: transparent; border-style: dashed; }
+  .kpi.pending::after { background: var(--line-2); }
+  .kpi.pending .value { color: var(--dim); font-size: 22px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+  .tile {
+    display: block; text-decoration: none; padding: 18px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line-2);
+    border-top: 3px solid var(--cat); transition: transform .15s, border-color .15s;
+  }
+  .tile:hover { transform: translateY(-2px); border-color: var(--cat); }
+  .tile .n { font: 800 44px/1 var(--display); color: var(--cat); }
+  .tile .t { margin-top: 4px; font: 700 17px var(--display); letter-spacing: .12em; text-transform: uppercase; }
+  .tile .d { margin-top: 6px; font-size: 13px; color: var(--muted); line-height: 1.45; }
+  .feed { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line-2); border-radius: 10px; background: var(--surface); }
+  .feed li { display: grid; grid-template-columns: 100px 80px minmax(0, 1fr); gap: 14px; align-items: baseline; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .feed li:last-child { border-bottom: 0; }
+  .feed time { font: 500 12px var(--mono); color: var(--muted); }
+  .feed .type { font: 700 11px var(--display); letter-spacing: .16em; text-transform: uppercase; color: var(--cyan); }
+  .feed .type.ingest { color: var(--blue); } .feed .type.schema, .feed .type.maintenance { color: var(--orange); } .feed .type.lint { color: var(--magenta); }
+  .feed span:last-child { font-size: 14px; color: #d5dce5; }
+
+  /* ── Catalogue + search results ── */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .card {
+    display: flex; flex-direction: column; gap: 6px; text-decoration: none; padding: 16px 18px; border-radius: 10px;
+    background: var(--surface); border: 1px solid var(--line-2); border-left: 3px solid var(--cat); transition: border-color .15s, background .15s;
+  }
+  .card:hover { background: var(--surface-2); border-color: var(--cat); }
+  .card b { font: 700 19px/1.15 var(--display); text-transform: uppercase; letter-spacing: .02em; }
+  .card p { margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+  .card mark { background: rgba(212,255,58,.22); color: #fff; border-radius: 2px; padding: 0 2px; }
+
+  footer { grid-column: 1 / -1; margin-top: 50px; padding-top: 20px; border-top: 1px solid var(--line); font: 500 12px var(--mono); color: var(--dim); }
+
+  @media (max-width: 1200px) { .main { grid-template-columns: minmax(0, 1fr); } .toc { display: none; } }
+  @media (max-width: 900px) {
+    .shell { grid-template-columns: minmax(0, 1fr); }
+    nav.side { display: none; position: fixed; inset: 63px 0 0 0; z-index: 30; height: auto; background: var(--bg); border: 0; }
+    nav.side.open { display: block; }
+    .menu-toggle {
+      display: grid; place-items: center; width: 40px; height: 40px; flex-shrink: 0; cursor: pointer;
+      background: var(--surface-2); border: 1px solid var(--line-2); border-radius: 8px; color: var(--text);
+    }
+    .main { padding: 24px 16px 60px; }
+    .brand .word small, .search kbd { display: none; }
+    .topbar { padding: 12px 16px; gap: 10px; }
+    .feed li { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+    .pager { grid-template-columns: 1fr; } .pager .next { grid-column: 1; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="nav" aria-label="Open contents">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+  <a class="brand" href="#/">
+    <span class="mark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
+    <span class="word">Performance Lab<small>S&amp;C knowledge base</small></span>
+  </a>
+  <label class="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Search concepts, sources, programs…" aria-label="Search the wiki">
+    <kbd>/</kbd>
+  </label>
+</header>
+
+<div class="shell">
+  <nav class="side" id="nav" aria-label="Contents">
+    <a class="home" href="#/" id="home-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/></svg>Dashboard
+    </a>
+    <div id="navtree"></div>
+  </nav>
+
+  <div class="main" id="main">
+    <div id="view"></div>
+    <aside class="toc" id="toc" aria-label="On this page"></aside>
+    <footer>Built from the S&amp;C Obsidian vault · <span id="stamp"></span></footer>
+  </div>
+</div>
+
+<script>__MARKED__</script>
+<script>
+const { pages, nav, desc } = __DATA__;
+
+const CATS = { athlete: "Athlete", concepts: "Concept", sources: "Source", entities: "Entity", questions: "Question", "": "Core" };
+const SECTION_CAT = { "Core pages": "core", "Athlete data": "athlete", "Sources": "sources", "Entities": "entities", "Concepts": "concepts", "Questions and analyses": "questions" };
+const byLower = Object.fromEntries(Object.keys(pages).map(n => [n.toLowerCase(), n]));
+const resolve = name => byLower[(name || "").trim().toLowerCase()];
+const catOf = name => pages[name]?.folder || "core";
+const title = name => name[0].toUpperCase() + name.slice(1);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const slug = s => s.toLowerCase().replace(/<[^>]+>/g, "").replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "");
+const href = (name, heading) => "#/" + encodeURIComponent(name) + (heading ? "/" + encodeURIComponent(slug(heading)) : "");
+const descOf = name => {
+  const d = desc[name] || desc[Object.keys(desc).find(k => k.toLowerCase() === name.toLowerCase())] || "";
+  return d && d[0].toUpperCase() + d.slice(1);
+};
+// [[Target]], [[Target|Alias]], [[Target\|Alias]] (in tables), [[Target#Heading|Alias]], [[#Heading]]
+const LINK = /\[\[([^\]|\\#]*)(?:#([^\]|\\]+))?(?:\\?\|([^\]]+))?\]\]/g;
+
+// Backlinks.
+const backlinks = {};
+for (const [name, p] of Object.entries(pages)) {
+  for (const m of p.md.matchAll(LINK)) {
+    const t = resolve(m[1]);
+    if (t && t !== name) (backlinks[t] ||= new Set()).add(name);
+  }
+}
+// Sidebar order doubles as reading order.
+const order = [];
+nav.forEach(s => s.items.forEach(l => { const n = resolve(l); if (n && !order.includes(n)) order.push(n); }));
+
+marked.use({ gfm: true });
+
+function toHtml(md, current) {
+  const pre = md.replace(LINK, (_, target, heading, alias) => {
+    const t = target.trim() ? resolve(target) : current;
+    const text = esc((alias || (target.trim() ? target : heading) || "").trim());
+    return t ? `<a href="${href(t, heading)}">${text}</a>` : `<a class="missing" title="No page for “${esc(target)}” in this vault">${text}</a>`;
+  });
+  return marked.parse(pre);
+}
+
+// Wrap measurements (5.077 s, 8.29 m/s, 185 kg, 90 %, 3×6) in a mono metric style.
+const METRIC = /(?<![\w.])(\d+(?:[.,]\d+)?(?:\s?[–-]\s?\d+(?:[.,]\d+)?)?\s?(?:m\/s|km\/h|kg|lb|ms|cm|mm|m|s|yd|%|RM|Hz|N|W|bpm|min|h))(?![\w\/])|(?<![\w.])(\d+\s?[×x]\s?\d+(?:\s?@\s?\d+(?:\.\d+)?\s?(?:kg|%))?)(?!\w)/g;
+function markMetrics(root) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: n => n.parentElement.closest("pre, code, a, h1, h2, h3, .num") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+  });
+  const test = new RegExp(METRIC.source);
+  const nodes = [];
+  while (walker.nextNode()) if (test.test(walker.currentNode.nodeValue)) nodes.push(walker.currentNode);
+  for (const node of nodes) {
+    const span = document.createElement("span");
+    span.innerHTML = esc(node.nodeValue).replace(METRIC, m => `<span class="num">${m}</span>`);
+    node.replaceWith(...span.childNodes);
+  }
+}
+
+function buildNav() {
+  const chev = `<svg class="chev" viewBox="0 0 10 10" fill="currentColor"><path d="M3 1l5 4-5 4z"/></svg>`;
+  document.getElementById("navtree").innerHTML = nav.map(s => {
+    const cat = SECTION_CAT[s.title] || "core";
+    const items = s.items.map(resolve).filter(Boolean);
+    const open = ["core", "athlete", "questions"].includes(cat);
+    return `<details class="navsec c-${cat}" ${open ? "open" : ""} data-sec="${esc(s.title)}">
+      <summary>${chev}${esc(s.title)}<span class="count">${items.length}</span></summary>
+      <ul class="navlist">
+        ${items.length > 8 ? `<li><a class="all" href="#/~${encodeURIComponent(s.title)}">View all as cards →</a></li>` : ""}
+        ${items.map(n => `<li><a href="${href(n)}" data-page="${esc(n)}">${esc(title(n))}</a></li>`).join("")}
+      </ul>
+    </details>`;
+  }).join("");
+}
+
+function setNav(active) {
+  document.getElementById("home-link").classList.toggle("on", active === "~home");
+  document.querySelectorAll("#navtree a[data-page]").forEach(a => {
+    const on = a.dataset.page === active;
+    a.classList.toggle("on", on);
+    if (on) { const d = a.closest("details"); d.open = true; a.scrollIntoView({ block: "nearest" }); }
+  });
+}
+
+function setToc(items) {
+  const toc = document.getElementById("toc"), main = document.getElementById("main");
+  main.classList.toggle("wide", !items.length);
+  toc.innerHTML = items.length ? `<h5>On this page</h5>` + items.map(h => `<a href="${h.href}" data-id="${h.id}">${esc(h.text)}</a>`).join("") : "";
+}
+
+let spy;
+function showPage(name, anchor) {
+  const p = pages[name], cat = catOf(name);
+  const view = document.getElementById("view");
+  const words = p.md.split(/\s+/).length;
+  const out = [...p.md.matchAll(LINK)].map(m => resolve(m[1])).filter(Boolean);
+  const bl = [...(backlinks[name] || [])].sort();
+  const h1 = (p.md.match(/^#\s+(.+)$/m) || [, title(name)])[1];
+  view.innerHTML = `
+    <header class="pagehead c-${cat}">
+      <div class="eyebrow">
+        <span class="chip">${CATS[p.folder] || "Core"}</span>
+        <span class="meta"><span>${words.toLocaleString()} words</span><span>${Math.max(1, Math.round(words / 230))} min read</span><span>${new Set(out).size} links out · ${bl.length} in</span></span>
+      </div>
+      <h1>${esc(h1)}</h1>
+      ${descOf(name) ? `<p class="lede">${toHtml(descOf(name), name).replace(/^<p>|<\/p>\s*$/g, "")}</p>` : ""}
+    </header>
+    <article class="c-${cat}">${toHtml(p.md, name)}</article>
+    ${bl.length ? `<section class="backlinks"><h5>Referenced by ${bl.length} page${bl.length > 1 ? "s" : ""}</h5><div>${
+      bl.map(n => `<a class="pill c-${catOf(n)}" href="${href(n)}">${esc(title(n))}</a>`).join("")}</div></section>` : ""}
+    ${pagerHtml(name)}`;
+
+  const art = view.querySelector("article");
+  art.querySelectorAll("table").forEach(t => { const w = document.createElement("div"); w.className = "tablewrap"; t.replaceWith(w); w.appendChild(t); });
+  art.querySelectorAll('a[href^="http"]').forEach(a => { a.classList.add("ext"); a.target = "_blank"; a.rel = "noopener"; });
+  const heads = [...art.querySelectorAll("h2, h3")];
+  heads.forEach(h => { h.id = slug(h.textContent); });
+  markMetrics(art);
+  const h2s = heads.filter(h => h.tagName === "H2");
+  setToc(h2s.map(h => ({ id: h.id, text: h.textContent, href: href(name, h.textContent) })));
+
+  spy?.disconnect();
+  spy = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) document.querySelectorAll("#toc a").forEach(a => a.classList.toggle("on", a.dataset.id === e.target.id)); });
+  }, { rootMargin: "-80px 0px -70% 0px" });
+  h2s.forEach(h => spy.observe(h));
+
+  document.title = `${h1} · Performance Lab`;
+  setNav(name);
+  const target = anchor && document.getElementById(anchor);
+  if (target) target.scrollIntoView(); else window.scrollTo({ top: 0 });
+}
+
+function pagerHtml(name) {
+  const i = order.indexOf(name);
+  if (i < 0) return "";
+  const prev = order[i - 1], next = order[i + 1];
+  return `<nav class="pager">
+    ${prev ? `<a href="${href(prev)}"><small>← Previous</small><span>${esc(title(prev))}</span></a>` : ""}
+    ${next ? `<a class="next" href="${href(next)}"><small>Next →</small><span>${esc(title(next))}</span></a>` : ""}
+  </nav>`;
+}
+
+// Dashboard: KPIs from Testing History, section tiles, recent log activity.
+function showHome() {
+  const th = pages["Testing History"]?.md || "";
+  const block = (th.split(/^## Current bests\s*$/m)[1] || "").split(/^## /m)[0];
+  const rows = block.split("\n").filter(l => /^\|/.test(l) && !/^\|\s*-/.test(l)).slice(1)
+    .map(l => l.split("|").slice(1, -1).map(c => c.trim().replace(/\*\*/g, "")));
+  const kpi = r => {
+    const [test, best, date] = r, done = best && best !== "—" && !/^—/.test(best);
+    const m = done && best.match(/^([\d.,]+)\s*([^\s=(]*)(.*)$/);
+    const value = m ? `${esc(m[1])}<small>${esc(m[2])}</small>` : done ? esc(best) : "Not tested";
+    return `<a class="kpi ${done ? "" : "pending"}" href="${href("Testing History")}" style="text-decoration:none">
+      <div class="label">${esc(test)}</div><div class="value">${value}</div>
+      <div class="date">${done ? esc(date) + (m && m[3].trim() ? " · " + esc(m[3].replace(/^\s*=\s*/, "")) : "") : "measurement debt"}</div></a>`;
+  };
+
+  const tiles = nav.filter(s => s.title !== "Core pages").map(s => {
+    const cat = SECTION_CAT[s.title] || "core", n = s.items.map(resolve).filter(Boolean).length;
+    const blurb = { athlete: "Your tests, bests and gap analysis", sources: "Presentations, papers and coaching notes", entities: "Coaches, organisations and systems",
+                    concepts: "Mechanisms, methods and training models", questions: "Programs and applied answers" }[cat] || "";
+    return `<a class="tile c-${cat}" href="#/~${encodeURIComponent(s.title)}"><div class="n">${n}</div><div class="t">${esc(s.title)}</div><div class="d">${blurb}</div></a>`;
+  }).join("");
+
+  const log = [...(pages.log?.md || "").matchAll(/^## \[(\d{4}-\d{2}-\d{2})\]\s*(\w+)\s*\|\s*(.+)$/gm)].slice(-8).reverse();
+  const plain = s => s.replace(LINK, (_, t, h, a) => a || t || h);
+
+  document.getElementById("view").innerHTML = `
+    <section class="hero">
+      <div class="kicker">Strength &amp; Conditioning · Knowledge Base</div>
+      <h1>Train <em>smarter.</em><br>Run faster.</h1>
+      <p>${Object.keys(pages).length} pages of synthesised coaching models, sources and programs — speed, power, strength and youth development — plus your own testing data.</p>
+    </section>
+    ${rows.length ? `<div class="blockhead"><h2>Current bests</h2><a href="${href("Testing History")}">Testing history →</a></div>
+      <div class="kpis">${rows.map(kpi).join("")}</div>` : ""}
+    <div class="blockhead"><h2>Library</h2><a href="${href("overview")}">Read the overview →</a></div>
+    <div class="tiles">${tiles}</div>
+    ${log.length ? `<div class="blockhead"><h2>Recent activity</h2><a href="${href("log")}">Full log →</a></div>
+      <ul class="feed">${log.map(m => `<li><time>${m[1]}</time><span class="type ${m[2]}">${esc(m[2])}</span><span>${esc(plain(m[3]))}</span></li>`).join("")}</ul>` : ""}`;
+  setToc([]);
+  document.title = "Performance Lab · S&C Wiki";
+  setNav("~home");
+  window.scrollTo({ top: 0 });
+}
+
+function cardsHtml(names, snippet) {
+  return `<div class="cards">${names.map(n => `<a class="card c-${catOf(n)}" href="${href(n)}"><b>${esc(title(n))}</b><p>${snippet ? snippet(n) : esc(descOf(n))}</p></a>`).join("")}</div>`;
+}
+
+function showSection(secTitle) {
+  const s = nav.find(x => x.title === secTitle);
+  if (!s) return showHome();
+  const cat = SECTION_CAT[s.title] || "core", names = s.items.map(resolve).filter(Boolean);
+  document.getElementById("view").innerHTML = `
+    <header class="pagehead c-${cat}"><div class="eyebrow"><span class="chip">Library</span><span class="meta">${names.length} pages</span></div>
+      <h1>${esc(s.title)}</h1></header>${cardsHtml(names)}`;
+  setToc([]); setNav(null); window.scrollTo({ top: 0 });
+  document.title = `${s.title} · Performance Lab`;
+}
+
+function showSearch(q) {
+  const needle = q.trim().toLowerCase();
+  const plain = md => md.replace(LINK, (_, t, h, a) => a || t || h).replace(/[#*`|>_]+/g, " ").replace(/\s+/g, " ");
+  const hits = Object.entries(pages).map(([name, p]) => {
+    const text = plain(p.md), lower = text.toLowerCase();
+    const score = (name.toLowerCase().includes(needle) ? 1000 : 0) + (descOf(name).toLowerCase().includes(needle) ? 50 : 0) + lower.split(needle).length - 1;
+    return { name, text, lower, score };
+  }).filter(h => h.score > 0).sort((a, b) => b.score - a.score).slice(0, 60);
+  const byName = Object.fromEntries(hits.map(h => [h.name, h]));
+  const snip = n => {
+    const h = byName[n], at = h.lower.indexOf(needle);
+    if (at < 0) return esc(descOf(n) || h.text.slice(0, 160));
+    const s = Math.max(0, at - 70);
+    return (s ? "…" : "") + esc(h.text.slice(s, at)) + `<mark>${esc(h.text.slice(at, at + needle.length))}</mark>` + esc(h.text.slice(at + needle.length, at + needle.length + 110)) + "…";
+  };
+  document.getElementById("view").innerHTML = `
+    <header class="pagehead c-concepts"><div class="eyebrow"><span class="chip">Search</span><span class="meta">${hits.length} result${hits.length === 1 ? "" : "s"}</span></div>
+      <h1>“${esc(q.trim())}”</h1></header>${hits.length ? cardsHtml(hits.map(h => h.name), snip) : `<p class="lede">No pages mention that.</p>`}`;
+  setToc([]); setNav(null);
+}
+
+function route() {
+  const raw = location.hash.replace(/^#\/?/, "");
+  document.getElementById("nav").classList.remove("open");
+  document.getElementById("menu-toggle").setAttribute("aria-expanded", "false");
+  if (!raw) return showHome();
+  if (raw.startsWith("~")) return showSection(decodeURIComponent(raw.slice(1)));
+  const [pagePart, anchor] = raw.split("/");
+  const name = resolve(decodeURIComponent(pagePart));
+  name ? showPage(name, anchor && decodeURIComponent(anchor)) : showHome();
+}
+
+buildNav();
+document.getElementById("stamp").textContent = `${Object.keys(pages).length} pages`;
+window.addEventListener("hashchange", route);
+const q = document.getElementById("q");
+let timer;
+q.addEventListener("input", () => {
+  clearTimeout(timer);
+  timer = setTimeout(() => q.value.trim().length > 1 ? showSearch(q.value) : route(), 160);
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "/" && document.activeElement !== q) { e.preventDefault(); q.focus(); }
+  if (e.key === "Escape" && document.activeElement === q) { q.value = ""; q.blur(); route(); }
+});
+document.getElementById("menu-toggle").addEventListener("click", e => {
+  const open = document.getElementById("nav").classList.toggle("open");
+  e.currentTarget.setAttribute("aria-expanded", open);
+});
+route();
+</script>
+</body>
+</html>

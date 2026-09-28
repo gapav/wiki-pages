@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Balatro Collection</title>
+<style>
+  /* m6x11 by Daniel Linssen — the font Balatro uses. */
+  @font-face { font-family: m6x11; font-display: swap; src: url(data:font/woff2;base64,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) format("woff2"); }
+  :root {
+    --felt-1: #b3261e;
+    --felt-2: #1f5d63;
+    --felt-3: #0f2328;
+    --panel: #3a5055;
+    --panel-dark: #1e2b2d;
+    --panel-edge: #c5ccd6;
+    --ink: #ffffff;
+    --ink-dark: #3a3f46;
+    --muted: #b5c3c6;
+    --red: #ff4c40;
+    --red-shadow: #a02721;
+    --orange: #ff8f00;
+    --orange-shadow: #a8661a;
+    --blue: #0093ff;
+    --blue-shadow: #00569c;
+    --common: #0093ff;
+    --uncommon: #35bd86;
+    --rare: #ff4c40;
+    --legendary: #ab5bb5;
+    --base: #3fb6b0;
+    --upgraded: #ff9a00;
+    --planet: #13afce;
+    --gold: #f5b143;
+    /* Highlight palette from balatrowiki.org */
+    --hl-orange: #ff8f00; --hl-yellow: #f5b244; --hl-green: #35bd86; --hl-red: #ff4c40;
+    --hl-gray: #b1b1b1; --hl-purple: #ca8cff; --hl-cyan: #69e6ff; --hl-blue: #0093ff;
+    --hl-sblue: #76a6ff; --hl-chips: #0093ff; --hl-mult: #ff4c40;
+    --suit-diamond: #ffa300; --suit-heart: #f83b2f; --suit-spade: #8fb1b8; --suit-club: #009cfd;
+  }
+  * { box-sizing: border-box; }
+  body, button, input, select, strong, b, h1, h2, h3 { -webkit-font-smoothing: none; font-weight: normal; }
+  html { background: var(--felt-3); }
+  body {
+    margin: 0; color: var(--ink); min-height: 100vh; position: relative; overflow-x: hidden;
+    font: 21px/1.2 m6x11, monospace;
+  }
+  /* Swirling red/teal backdrop like the title screen. */
+  body::before {
+    content: ""; position: fixed; inset: -50%; z-index: -2;
+    background:
+      radial-gradient(ellipse 30% 20% at 30% 40%, rgba(254,95,85,.55), transparent 70%),
+      radial-gradient(ellipse 25% 35% at 70% 60%, rgba(36,120,128,.6), transparent 70%),
+      conic-gradient(from 0deg at 50% 50%, var(--felt-1), var(--felt-2), #7a1a16, var(--felt-3), var(--felt-1), #164a50, #8f201a, var(--felt-2), var(--felt-1));
+    filter: blur(40px) saturate(1.1);
+    animation: swirl 60s linear infinite;
+  }
+  /* CRT scanlines + vignette. */
+  body::after {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.14) 0 1px, transparent 1px 3px),
+      radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.55) 100%);
+  }
+  @keyframes swirl { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { body::before { animation: none; } .card:hover .art { transform: none; } }
+
+  main { max-width: 1140px; margin: 0 auto; padding: 36px 16px 64px; }
+
+  /* Title */
+  .title { text-align: center; margin-bottom: 28px; }
+  .title .logo {
+    display: inline-block; font-family: m6x11, monospace; font-size: clamp(44px, 10vw, 88px); line-height: 1; letter-spacing: 4px;
+    color: #f4f1ea; text-shadow: 3px 0 0 var(--blue), -3px 0 0 var(--red), 0 6px 0 #1b1f24, 0 10px 18px rgba(0,0,0,.5);
+  }
+  .title .logo .ace {
+    display: inline-grid; place-items: center; width: .72em; height: .95em; margin: 0 .04em; vertical-align: -.08em;
+    background: #fff; color: #1b1f24; border-radius: .08em; font-size: .9em; text-shadow: none;
+    box-shadow: 0 6px 0 #1b1f24; transform: rotate(-6deg);
+  }
+  .title .sub { margin: 14px 0 0; color: var(--muted); font-size: 22px; text-shadow: 0 2px 0 rgba(0,0,0,.6); }
+
+  /* The big dark panel everything sits in, like the in-game menus. */
+  .board {
+    background: var(--panel); border: 4px solid var(--panel-edge); border-radius: 18px;
+    padding: 22px; box-shadow: 0 10px 0 rgba(0,0,0,.35), 0 20px 40px rgba(0,0,0,.4);
+  }
+
+  .btn {
+    font: 22px m6x11, monospace; color: #fff; cursor: pointer;
+    background: var(--c, var(--red)); border: 0; border-radius: 10px; padding: 8px 16px;
+    box-shadow: 0 4px 0 var(--cs, var(--red-shadow)); text-shadow: 0 2px 0 rgba(0,0,0,.25);
+    transition: transform .08s, box-shadow .08s, filter .1s;
+  }
+  .btn:hover { filter: brightness(1.1); }
+  .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--cs, var(--red-shadow)); }
+  .btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+  .tabs { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 22px; }
+  .tabs button { font-family: m6x11, monospace; font-size: 22px; padding: 10px 22px; --c: #5a6f74; --cs: #2c3a3d; }
+  .tabs button[aria-selected="true"] { --c: var(--red); --cs: var(--red-shadow); }
+  .tabs button small {
+    font: 18px m6x11, monospace; margin-left: 8px; background: rgba(0,0,0,.3); border-radius: 6px; padding: 1px 6px; vertical-align: 3px;
+  }
+
+  .stats { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 12px; margin-bottom: 14px; }
+  .stat[hidden] { display: none; }
+  .stat { background: var(--panel-dark); border-radius: 12px; padding: 10px 14px; text-align: center; }
+  .stat b { display: block; font-size: 52px; line-height: 1.1; text-shadow: 0 3px 0 rgba(0,0,0,.4); }
+  .stat span { color: var(--muted); font-size: 19px; }
+  .stat.have b { color: var(--blue); }
+  .stat.lock b { color: var(--red); }
+  .stat.undisc b { color: var(--orange); }
+  .bar { height: 18px; background: var(--panel-dark); border-radius: 9px; overflow: hidden; margin: 0 0 22px; padding: 3px; }
+  .bar i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--blue), var(--red)); transition: width .4s; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-bottom: 12px; align-items: center; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; }
+  .filters button { font-size: 21px; padding: 6px 12px; --c: #5a6f74; --cs: #2c3a3d; }
+  .filters button[aria-pressed="true"] { --c: var(--orange); --cs: var(--orange-shadow); }
+  #rarity button[data-f="common"][aria-pressed="true"] { --c: var(--common); --cs: #00569c; }
+  #rarity button[data-f="uncommon"][aria-pressed="true"] { --c: var(--uncommon); --cs: #2a7a5a; }
+  #rarity button[data-f="rare"][aria-pressed="true"] { --c: var(--rare); --cs: var(--red-shadow); }
+  #rarity button[data-f="legendary"][aria-pressed="true"] { --c: var(--legendary); --cs: #6d3574; }
+  input[type="search"] {
+    font: 20px m6x11, monospace; color: #fff; background: var(--panel-dark);
+    border: 3px solid transparent; border-radius: 10px; padding: 7px 12px; width: 240px; max-width: 100%;
+  }
+  input[type="search"]::placeholder { color: #7f9296; }
+  input[type="search"]:focus { outline: none; border-color: var(--orange); }
+
+  h2 { font-family: m6x11, monospace; font-size: 26px; margin: 30px 0 2px; text-shadow: 0 3px 0 rgba(0,0,0,.4); }
+  h2 small { color: var(--muted); font: 24px m6x11, monospace; }
+  .note { color: var(--muted); margin: 0 0 16px; font-size: 20px; }
+  .empty { color: var(--muted); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr)); gap: 18px; }
+
+  /* Each entry: tilted card art + an in-game style tooltip. */
+  .card {
+    background: var(--panel-dark); border-radius: 14px; padding: 16px; display: grid;
+    grid-template-columns: 116px minmax(0, 1fr); gap: 16px; align-items: start;
+    box-shadow: 0 5px 0 rgba(0,0,0,.35);
+  }
+  .side { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .art {
+    width: 112px; height: 150px; display: grid; place-items: center; position: relative;
+    image-rendering: pixelated; transform: rotate(-3deg);
+    transition: transform .25s cubic-bezier(.3,1.8,.5,1);
+    filter: drop-shadow(0 6px 0 rgba(0,0,0,.45));
+  }
+  .card:nth-child(even) .art { transform: rotate(2.5deg); }
+  .card:hover .art { transform: rotate(0) scale(1.08) translateY(-4px); }
+  .art img { width: 100%; height: 100%; object-fit: contain; }
+  .card.missing .art img { filter: grayscale(.9) brightness(.6) contrast(.9); }
+  .art .ph { font-size: 48px; color: var(--muted); }
+  .badge {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+    font-size: 13px; padding: 2px 8px; border-radius: 6px;
+    background: var(--red); box-shadow: 0 3px 0 var(--red-shadow);
+  }
+  .badge.undisc { background: var(--orange); box-shadow: 0 3px 0 var(--orange-shadow); }
+
+  .card select {
+    width: 112px; cursor: pointer; appearance: none; text-align: center; text-align-last: center;
+    font: 20px m6x11, monospace; color: #fff;
+    background: #5a6f74; border: 0; border-radius: 8px; padding: 6px 8px; box-shadow: 0 3px 0 #2c3a3d;
+  }
+  .card.edited select { background: var(--orange); box-shadow: 0 3px 0 var(--orange-shadow); }
+  .card select:focus-visible { outline: 3px solid #fff; }
+
+  .body { min-width: 0; }
+  h3 { margin: 2px 0 0; font-family: m6x11, monospace; font-size: 24px; overflow-wrap: anywhere; line-height: 1.1; text-shadow: 0 2px 0 rgba(0,0,0,.5); }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 8px 0 10px; }
+  .tag {
+    display: inline-block; font-size: 19px; padding: 0 10px; border-radius: 6px;
+    background: var(--r); color: #fff; text-transform: capitalize;
+    box-shadow: 0 3px 0 color-mix(in srgb, var(--r) 55%, black);
+  }
+  .loc { font-size: 18px; color: var(--muted); }
+  /* Description box, coloured like the game / wiki. */
+  .effect {
+    font-size: 22px; margin: 0 0 10px; color: #fff; background: #2f3538;
+    border: 2px solid #4a5357; border-radius: 8px; padding: 8px 10px; box-shadow: 0 3px 0 rgba(0,0,0,.35);
+  }
+  .hl-orange { color: var(--hl-orange); } .hl-yellow { color: var(--hl-yellow); }
+  .hl-green { color: var(--hl-green); }   .hl-red { color: var(--hl-red); }
+  .hl-gray, .hl-grey { color: var(--hl-gray); } .hl-purple { color: var(--hl-purple); }
+  .hl-cyan { color: var(--hl-cyan); }     .hl-blue { color: var(--hl-blue); }
+  .hl-sblue { color: var(--hl-sblue); }   .hl-chips { color: var(--hl-chips); }
+  .hl-mult { color: var(--hl-mult); }
+  .hl-xmult { color: #fff; background: var(--hl-mult); border-radius: .35em; padding: 0 .3ch; white-space: nowrap; }
+  .hl-edition { background: linear-gradient(90deg, #ff8f8f, #ffe08a, #8fffb4, #8fd3ff, #d49aff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .suit-diamond { color: var(--suit-diamond); } .suit-heart { color: var(--suit-heart); }
+  .suit-spade { color: var(--suit-spade); }     .suit-club { color: var(--suit-club); }
+  .unlock { font-size: 20px; background: rgba(255,255,255,.07); border-radius: 8px; padding: 7px 10px; margin: 0; color: #e6ecee; }
+  .unlock strong { color: var(--orange); }
+  .upgrade-of { font-size: 18px; color: var(--muted); margin: 0 0 8px; }
+  /* Achievements: square Steam icons, links to the item they share an unlock with. */
+  .card.ach .art { height: 112px; }
+  .card.ach .art img { border-radius: 8px; }
+  .jump {
+    font: inherit; color: var(--hl-orange); background: none; border: 0; padding: 0; cursor: pointer;
+    text-decoration: underline dotted; text-underline-offset: 3px;
+  }
+  .jump:hover { color: #ffb24d; }
+  .when { display: block; color: var(--blue); }
+
+  .common { --r: var(--common); } .uncommon { --r: var(--uncommon); }
+  .rare { --r: var(--rare); } .legendary { --r: var(--legendary); }
+  .base { --r: var(--base); } .upgraded { --r: var(--upgraded); }
+  .standard { --r: var(--planet); } .secret { --r: var(--legendary); }
+
+  footer { color: var(--muted); font-size: 18px; margin-top: 28px; text-align: center; text-shadow: 0 2px 0 rgba(0,0,0,.6); }
+  footer a { color: var(--orange); }
+
+  @media (max-width: 480px) {
+    .board { padding: 14px; border-width: 3px; }
+    .card { grid-template-columns: 96px minmax(0, 1fr); padding: 12px; gap: 12px; }
+    .art { width: 92px; height: 124px; }
+    .card select { width: 96px; }
+    .card.ach .art { height: 92px; }
+    .tabs button { font-size: 18px; padding: 8px 14px; }
+    .stat { padding: 8px 6px; }
+    .stat b { font-size: 38px; }
+    .stat span { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header class="title">
+    <div class="logo" aria-label="Balatro">BAL<span class="ace" aria-hidden="true">♠</span>TRO</div>
+    <p class="sub">Collection tracker · your screenshots vs. the Balatro Wiki</p>
+  </header>
+
+  <div class="board">
+    <div class="tabs" role="tablist" id="tabs"></div>
+
+    <div class="stats">
+      <div class="stat have"><b id="have"></b><span id="have-label"></span></div>
+      <div class="stat lock"><b id="locked"></b><span>still locked</span></div>
+      <div class="stat undisc"><b id="undisc"></b><span>unlocked, not yet seen</span></div>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+
+    <div class="controls">
+      <div class="filters" id="views">
+        <button class="btn" data-v="missing">Missing</button>
+        <button class="btn" data-v="owned">Collected</button>
+        <button class="btn" data-v="all" id="all-btn">All</button>
+      </div>
+      <input type="search" id="q" placeholder="Search name or effect…" aria-label="Search">
+    </div>
+    <div class="controls"><div class="filters" id="rarity"></div></div>
+
+    <div id="sections"></div>
+  </div>
+
+  <footer>Data from the Balatro Wiki: <a href="https://balatrowiki.org/w/Jokers">Jokers</a>,
+    <a href="https://balatrowiki.org/w/Vouchers">Vouchers</a>, <a href="https://balatrowiki.org/w/Planet_cards">Planet cards</a>,
+    <a href="https://balatrowiki.org/w/Achievements">Achievements</a> · icons and player % from <a href="https://steamcommunity.com/stats/2379780/achievements">Steam</a>. Status changes are saved in this browser only.</footer>
+</main>
+
+<script>
+// Collection order from the wiki; locked/undiscovered read off the in-game collection screenshots.
+const TABS = {
+  jokers: {
+    label: "Jokers", noun: "Jokers",
+    items: __JOKERS__,
+    locked: [106,116,117,118,119,120,125,128,130,136,138,139,143,146,147,149,150],
+    undisc: [61,89],
+    groups: ["common", "uncommon", "rare", "legendary"], groupLabel: "Any rarity",
+    storeKey: "balatro-status", defaults: { "Bloodstone": "undisc" },
+    notes: {
+      locked: "Shown as padlocks in your collection. Meet the unlock requirement to add them to the pool.",
+      undisc: "Shown as \"?\" cards. They're unlocked but you haven't seen them in a run yet.",
+    },
+    how: (j, st) => st === "locked" ? j.unlH : ({
+      61: `Only appears after ${hl("orange", "Gros Michel")} has gone extinct in a run.`,
+      89: `Only appears in the shop when your deck has ${hl("orange", "Stone Cards")}.`,
+    })[j.n] || j.unlH,
+  },
+  vouchers: {
+    label: "Vouchers", noun: "Vouchers",
+    items: __VOUCHERS__,
+    locked: [4,24,26,32],
+    undisc: [6,8,12,16,20,22,30],
+    groups: ["base", "upgraded"], groupLabel: "Any tier",
+    storeKey: "balatro-voucher-status", defaults: {},
+    notes: {
+      locked: "Shown as padlocks. Meet the unlock requirement, then redeem the base voucher in a run to find it.",
+      undisc: "Shown as \"?\" tickets. Unlocked, but you haven't redeemed the base voucher and seen the upgrade yet.",
+    },
+    how: (j, st) => !j.base ? j.unlH : st === "undisc"
+      ? `Redeem ${hl("orange", j.base)} in a run; ${esc(j.name)} can then show up in the shop.`
+      : `${j.unlH.replace(/\.$/, "")}. Then redeem ${hl("orange", j.base)} in a run to find it.`,
+  },
+  planets: {
+    label: "Planets", noun: "Planets",
+    items: __PLANETS__,
+    locked: [],
+    undisc: [11,12],
+    groups: ["standard", "secret"], groupLabel: "Any type", foundLabel: "Appears:",
+    storeKey: "balatro-planet-status", defaults: {},
+    notes: {
+      locked: "Planet cards are never locked.",
+      undisc: "Shown as \"?\" cards. Discovering every Planet also unlocks the Astronomer Joker.",
+    },
+    how: j => j.unlH,
+  },
+  achievements: {
+    label: "Achievements", noun: "Achievements", verb: "unlocked", missingWord: "locked",
+    items: __ACHIEVEMENTS__,
+    // Unlock times from your Steam achievements page (local time). Everything else is locked.
+    unlockedOn: {
+      "Big Hands": "2026-09-26T08:23", "Legendary": "2024-06-14T21:53", "Clairvoyance": "2024-06-14T21:53",
+      "You Get What You Get": "2024-05-24T21:16", "Mid Stakes": "2024-05-23T22:32", "Royale": "2024-05-23T21:55",
+      "Low Stakes": "2024-05-21T22:05", "Card Discarder": "2024-05-20T22:04", "1,000K": "2024-05-09T20:29",
+      "Card Player": "2024-04-24T22:48", "Retrograde": "2024-04-24T22:48", "Heads Up": "2024-04-19T15:20",
+      "Ante Upper!": "2024-04-19T10:04", "Cartomancy": "2024-04-19T10:04", "Ante Up!": "2024-04-18T22:16", "10K": "2024-04-18T22:16",
+    },
+    locked: [], undisc: [], noUndisc: true, cardClass: "ach",
+    groups: ["common", "uncommon", "rare", "legendary"], groupLabel: "Any rarity",
+    storeKey: "balatro-ach-status", defaults: {},
+    options: { locked: "Locked", owned: "Unlocked" },
+    titles: { owned: "Unlocked" },
+    views: { missing: "Locked", owned: "Unlocked" },
+    notes: {
+      locked: "Not unlocked on Steam yet. Rarity here = share of Steam players who have it: common 50%+, uncommon 20%+, rare 5%+, legendary under 5%.",
+      owned: "Unlocked on your Steam account, newest first.",
+    },
+    baseStatus: j => TABS.achievements.unlockedOn[j.name] ? "owned" : "locked",
+    sortOwned: (a, b) => (TABS.achievements.unlockedOn[b.name] || "").localeCompare(TABS.achievements.unlockedOn[a.name] || ""),
+    meta: (j, st) => {
+      const on = st === "owned" && TABS.achievements.unlockedOn[j.name];
+      return `#${j.n} · ${j.pct}% of players` + (on ? `<span class="when">✓ ${esc(fmtDate(on))}</span>` : "");
+    },
+    // Live progress for the achievements this page tracks directly.
+    progress: {
+      "Astronomy": () => `${tally("planets")} Planets discovered`,
+      "Extreme Couponer": () => `${tally("vouchers")} Vouchers discovered`,
+      "Completionist": () => `Jokers ${tally("jokers")} · Vouchers ${tally("vouchers")} · Planets ${tally("planets")} (Tarots, Spectrals, Decks etc. aren't tracked here)`,
+    },
+    box: (j, st) => {
+      const t = TABS.achievements, rows = [];
+      if (st === "locked" && t.progress[j.name]) rows.push(`<strong>Progress:</strong> ${t.progress[j.name]()}`);
+      if (j.shares) {
+        const hit = findItem(j.shares);
+        const what = hit
+          ? `<button class="jump" data-tab="${hit.key}" data-name="${esc(j.shares)}">${esc(j.shares)}</button> (${hit.tab.one} · ${(hit.tab.options || OPTIONS)[status(hit.tab, hit.item)]})`
+          : `${esc(j.shares)}`;
+        rows.push(`<strong>${st === "owned" ? "Also unlocked:" : "Also unlocks:"}</strong> ${what}`);
+      }
+      return rows.map(r => `<p class="unlock">${r}</p>`).join("");
+    },
+  },
+};
+TABS.jokers.one = "Joker"; TABS.vouchers.one = "Voucher"; TABS.planets.one = "Planet";
+
+const SECTION_TITLES = { locked: "Locked", undisc: "Undiscovered", owned: "Collected" };
+const OPTIONS = { locked: "Locked", undisc: "Not seen", owned: "Collected" };
+
+// Per-item status changes, e.g. { "Bloodstone": "undisc" }.
+for (const t of Object.values(TABS)) {
+  t.overrides = { ...t.defaults };
+  try {
+    const saved = JSON.parse(localStorage.getItem(t.storeKey));
+    if (saved) t.overrides = saved;
+  } catch (e) {}
+}
+
+let tab = "jokers", view = "missing", group = "all", q = "";
+try {
+  tab = localStorage.getItem("balatro-tab") in TABS ? localStorage.getItem("balatro-tab") : tab;
+  view = localStorage.getItem("balatro-view") || view;
+} catch (e) {}
+
+const T = () => TABS[tab];
+const baseStatus = (t, j) => t.baseStatus ? t.baseStatus(j) : t.locked.includes(j.n) ? "locked" : t.undisc.includes(j.n) ? "undisc" : "owned";
+const status = (t, j) => t.overrides[j.name] || baseStatus(t, j);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+// effH / unlH carry the wiki's own colour spans (hl-*, suit-*), sanitised at build time.
+const hl = (c, s) => `<span class="hl-${c}">${esc(s)}</span>`;
+const fmtDate = iso => {
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " · " +
+    d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).replace(" ", "\u00a0");
+};
+const tally = key => { const x = TABS[key]; return `${x.items.filter(i => status(x, i) === "owned").length}/${x.items.length}`; };
+const findItem = name => {
+  for (const [key, tab] of Object.entries(TABS)) {
+    const item = key !== "achievements" && tab.items.find(i => i.name === name);
+    if (item) return { key, tab, item };
+  }
+};
+const save = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+function card(j) {
+  const t = T(), st = status(t, j), missing = st !== "owned";
+  const el = document.createElement("article");
+  el.className = `card ${j.r} ${t.cardClass || ""} ${missing ? "missing" : "owned"}` + (st !== baseStatus(t, j) ? " edited" : "");
+  const needsUnlock = !/^Available from start/.test(j.unl);
+  const box = t.box ? t.box(j, st) : missing
+    ? `<p class="unlock"><strong>${st === "undisc" ? "How to find:" : "Unlock:"}</strong> ${t.how(j, st)}</p>`
+    : needsUnlock ? `<p class="unlock"><strong>${t.foundLabel || "Unlock:"}</strong> ${j.unlH}</p>` : "";
+  el.innerHTML = `
+    <div class="side">
+      <div class="art"><img alt="${esc(j.name)}" loading="lazy" src="${j.img}"
+        onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ph',textContent:'?'}))">
+</div>
+      <select aria-label="Status of ${esc(j.name)}">${Object.entries(t.options || OPTIONS).map(([v, l]) =>
+        `<option value="${v}" ${v === st ? "selected" : ""}>${l}</option>`).join("")}</select>
+    </div>
+    <div class="body">
+      <h3>${esc(j.name)}</h3>
+      <div class="meta"><span class="tag">${j.r}</span><span class="loc">${t.meta ? t.meta(j, st) : `#${j.n} · ${esc(j.loc)} · ${esc(j.cost)}`}</span></div>
+      <p class="effect">${j.effH}</p>
+      ${j.base && !missing ? `<p class="upgrade-of">Upgrade of ${esc(j.base)}</p>` : ""}
+      ${box}
+    </div>`;
+  el.querySelector("select").addEventListener("change", e => {
+    if (e.target.value === baseStatus(t, j)) delete t.overrides[j.name];
+    else t.overrides[j.name] = e.target.value;
+    save(t.storeKey, JSON.stringify(t.overrides));
+    render();
+  });
+  return el;
+}
+
+function render() {
+  const t = T();
+  document.getElementById("tabs").innerHTML = Object.entries(TABS).map(([k, x]) => {
+    const miss = x.items.filter(j => status(x, j) !== "owned").length;
+    return `<button class="btn" role="tab" data-t="${k}" aria-selected="${k === tab}">${x.label}<small>${miss} ${x.missingWord || "missing"}</small></button>`;
+  }).join("");
+  document.getElementById("rarity").innerHTML = ["all", ...t.groups].map(g =>
+    `<button class="btn" data-f="${g}" aria-pressed="${g === group}">${g === "all" ? t.groupLabel : g[0].toUpperCase() + g.slice(1)}</button>`).join("");
+  document.getElementById("all-btn").textContent = `All ${t.items.length}`;
+  document.querySelectorAll("#views button").forEach(b => {
+    b.setAttribute("aria-pressed", b.dataset.v === view);
+    if (b.dataset.v !== "all") b.textContent = (t.views || { missing: "Missing", owned: "Collected" })[b.dataset.v];
+  });
+  document.querySelector(".stat.undisc").hidden = !!t.noUndisc;
+
+  const wrap = document.getElementById("sections");
+  wrap.innerHTML = "";
+  const order = view === "missing" ? ["locked", "undisc"] : view === "owned" ? ["owned"] : ["locked", "undisc", "owned"];
+  const needle = q.trim().toLowerCase();
+  for (const key of order) {
+    // Tabs like Planets have nothing lockable; skip the empty Locked section there.
+    if (key === "locked" && !t.items.some(j => status(t, j) === "locked") && !t.locked.length) continue;
+    if (key === "undisc" && t.noUndisc) continue;
+    const list = t.items.filter(j => status(t, j) === key && (group === "all" || j.r === group) &&
+      (!needle || j.name.toLowerCase().includes(needle) || j.eff.toLowerCase().includes(needle)));
+    if (key === "owned" && t.sortOwned) list.sort(t.sortOwned);
+    const sec = document.createElement("section");
+    sec.innerHTML = `<h2>${(t.titles && t.titles[key]) || SECTION_TITLES[key]} <small>(${list.length})</small></h2><p class="note">${t.notes[key] || "Already in your collection."}</p>`;
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    list.forEach(j => grid.appendChild(card(j)));
+    sec.appendChild(list.length ? grid : Object.assign(document.createElement("p"), {className: "empty", textContent: "Nothing here."}));
+    wrap.appendChild(sec);
+  }
+  const count = s => t.items.filter(j => status(t, j) === s).length;
+  const have = count("owned");
+  document.getElementById("have").textContent = have;
+  document.getElementById("have-label").textContent = `of ${t.items.length} ${t.noun.toLowerCase()} ${t.verb || "collected"}`;
+  document.getElementById("locked").textContent = count("locked");
+  document.getElementById("undisc").textContent = count("undisc");
+  document.getElementById("bar").style.width = (have / t.items.length * 100) + "%";
+}
+
+document.getElementById("tabs").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  tab = b.dataset.t; group = "all"; save("balatro-tab", tab); render();
+});
+document.getElementById("views").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  view = b.dataset.v; save("balatro-view", view); render();
+});
+document.getElementById("rarity").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  group = b.dataset.f; render();
+});
+document.getElementById("q").addEventListener("input", e => { q = e.target.value; render(); });
+document.getElementById("sections").addEventListener("click", e => {
+  const b = e.target.closest(".jump"); if (!b) return;
+  tab = b.dataset.tab; view = "all"; group = "all"; q = b.dataset.name;
+  document.getElementById("q").value = q;
+  save("balatro-tab", tab); save("balatro-view", view); render();
+  document.querySelector(".board").scrollIntoView({ behavior: "smooth" });
+});
+
+render();
+</script>
+</body>
+</html>
